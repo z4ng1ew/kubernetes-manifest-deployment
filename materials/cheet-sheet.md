@@ -36,3 +36,13 @@ kubectl get nodes
 kubectl get pods -A
 
 
+minikube stop
+
+
+
+# Удалить кластер и все его данные
+minikube delete --all --purge
+
+# Проверка
+minikube status
+docker ps -a
