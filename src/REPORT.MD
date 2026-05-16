@@ -75,3 +75,71 @@ minikube   NotReady   control-plane   5s    v1.35.1
 (base) s@fedora:~$ 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy.png>)
+
+
+
+```
+(base) s@fedora:~$ kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   22m   v1.35.1
+(base) s@fedora:~$ kubectl get pods -A
+NAMESPACE     NAME                               READY   STATUS    RESTARTS       AGE
+kube-system   coredns-7d764666f9-bxhhh           1/1     Running   1 (18m ago)    22m
+kube-system   etcd-minikube                      1/1     Running   1 (18m ago)    22m
+kube-system   kube-apiserver-minikube            1/1     Running   1 (2m4s ago)   22m
+kube-system   kube-controller-manager-minikube   1/1     Running   1 (18m ago)    22m
+kube-system   kube-proxy-gv7rj                   1/1     Running   1 (18m ago)    22m
+kube-system   kube-scheduler-minikube            1/1     Running   1 (18m ago)    22m
+kube-system   storage-provisioner                1/1     Running   3 (81s ago)    22m
+(base) s@fedora:~$ minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+(base) s@fedora:~$ 
+
+```
+
+
+
+
+
+![alt text](<img/image copy 2.png>)
+
+```
+(base) s@fedora:~$ kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   28m   v1.35.1
+(base) s@fedora:~$ kubectl get pods -A
+NAMESPACE     NAME                               READY   STATUS    RESTARTS        AGE
+kube-system   coredns-7d764666f9-bxhhh           1/1     Running   1 (24m ago)     28m
+kube-system   etcd-minikube                      1/1     Running   1 (24m ago)     28m
+kube-system   kube-apiserver-minikube            1/1     Running   1 (8m2s ago)    28m
+kube-system   kube-controller-manager-minikube   1/1     Running   1 (24m ago)     28m
+kube-system   kube-proxy-gv7rj                   1/1     Running   1 (24m ago)     28m
+kube-system   kube-scheduler-minikube            1/1     Running   1 (24m ago)     28m
+kube-system   storage-provisioner                1/1     Running   3 (7m19s ago)   28m
+(base) s@fedora:~$ 
+
+```
