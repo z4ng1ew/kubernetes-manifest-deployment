@@ -27,3 +27,12 @@ kubectl get nodes
 
 
 
+minikube status
+
+
+
+
+kubectl get nodes
+kubectl get pods -A
+
+
