@@ -59,6 +59,17 @@ minikube   Ready    control-plane   60s   v1.35.1
 (base) s@fedora:~/DO_H_10$ 
 
 
+
+
+
+
+
+
+
+
+
+
+
 ![alt text](<img/image copy 5.png>)
 
 **Проверка**
