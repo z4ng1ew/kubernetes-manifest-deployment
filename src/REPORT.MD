@@ -283,6 +283,34 @@ Create an order
 
 
 
+![alt text](<img/image copy 16.png>)
+
+
+
+
+
+
+
+```
+(base) s@fedora:~/DO_H_10$ minikube service catalog
+┌───────────┬─────────┬─────────────┬───────────────────────────┐
+│ NAMESPACE │  NAME   │ TARGET PORT │            URL            │
+├───────────┼─────────┼─────────────┼───────────────────────────┤
+│ default   │ catalog │ 8080        │ http://192.168.49.2:31142 │
+└───────────┴─────────┴─────────────┴───────────────────────────┘
+🎉  Opening service default/catalog in default browser...
+(base) s@fedora:~/DO_H_10$ 
+```
+
+
+
+
+
+
+
+
+
+
 
 
 

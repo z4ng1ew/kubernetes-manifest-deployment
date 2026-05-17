@@ -28,7 +28,7 @@ kubectl get nodes
 
 
 minikube status
-
+minikube start
 
 
 
