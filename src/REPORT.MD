@@ -212,6 +212,124 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 
 ![alt text](<img/image copy 12.png>)
 
+![alt text](<img/image copy 17.png>)
+
+```
+Workload Status
+Running: 4
+Deployments
+Running: 4
+Pods
+Running: 4
+Replica Sets
+Deployments
+Name
+Images
+Labels
+Pods
+Created
+apache
+minivozhd/example-apache:latest
+run: apache
+1 / 1
+20 hours ago
+catalog
+minivozhd/example-catalog:latest
+run: catalog
+1 / 1
+20 hours ago
+customer
+minivozhd/example-customers:latest
+run: customer
+1 / 1
+20 hours ago
+order
+minivozhd/example-order:latest
+run: order
+1 / 1
+20 hours ago
+Pods
+Name
+Images
+Labels
+Node
+Status
+Restarts
+CPU Usage (cores)
+Memory Usage (bytes)
+Created
+apache-7f5f9d6b55-vhxqg
+minivozhd/example-apache:latest
+pod-template-hash: 7f5f9d6b55
+run: apache
+minikube
+Running
+2
+1.00m
+27.03Mi
+20 hours ago
+catalog-56d5b6f446-lhg7q
+minivozhd/example-catalog:latest
+pod-template-hash: 56d5b6f446
+run: catalog
+minikube
+Running
+2
+2.00m
+740.20Mi
+20 hours ago
+customer-99d48549d-fjqcc
+minivozhd/example-customers:latest
+pod-template-hash: 99d48549d
+run: customer
+minikube
+Running
+2
+2.00m
+669.83Mi
+20 hours ago
+order-779f66c67f-dtpzb
+minivozhd/example-order:latest
+pod-template-hash: 779f66c67f
+run: order
+minikube
+Running
+2
+2.00m
+642.32Mi
+20 hours ago
+Replica Sets
+Name
+Images
+Labels
+Pods
+Created
+apache-7f5f9d6b55
+minivozhd/example-apache:latest
+pod-template-hash: 7f5f9d6b55
+run: apache
+1 / 1
+20 hours ago
+catalog-56d5b6f446
+minivozhd/example-catalog:latest
+pod-template-hash: 56d5b6f446
+run: catalog
+1 / 1
+20 hours ago
+customer-99d48549d
+minivozhd/example-customers:latest
+pod-template-hash: 99d48549d
+run: customer
+1 / 1
+20 hours ago
+order-779f66c67f
+minivozhd/example-order:latest
+pod-template-hash: 779f66c67f
+run: order
+1 / 1
+20 hours ago 
+```
+
 
 **фиксируем состояние объектов**
 
