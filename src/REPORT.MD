@@ -14,7 +14,7 @@
 ![alt text](<img/image copy 3.png>)
 
 
-
+**Запуск minikube с 4 ГБ памяти**
 
 
 ```
@@ -51,6 +51,7 @@
 
 ![alt text](<img/image copy 4.png>)
 
+**Проверка**
 
 (base) s@fedora:~/DO_H_10$ kubectl get nodes
 NAME       STATUS   ROLES           AGE   VERSION
@@ -60,7 +61,7 @@ minikube   Ready    control-plane   60s   v1.35.1
 
 ![alt text](<img/image copy 5.png>)
 
-
+**Проверка**
 
 ```
 (base) s@fedora:~/DO_H_10$ minikube status
@@ -73,6 +74,34 @@ kubeconfig: Configured
 
 (base) s@fedora:~/DO_H_10$ 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
