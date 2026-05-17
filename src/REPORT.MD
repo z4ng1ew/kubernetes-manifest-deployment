@@ -63,9 +63,17 @@ minikube   Ready    control-plane   60s   v1.35.1
 
 
 
+![alt text](<img/image copy 8.png>)
 
 
+```
+(base) s@fedora:~/DO_H_10$ kubectl cluster-info
+Kubernetes control plane is running at https://192.168.49.2:8443
+CoreDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+(base) s@fedora:~/DO_H_10$ 
+```
 
 
 
@@ -119,13 +127,15 @@ kubeconfig: Configured
 
 
 
-2. Применить манифест из директории `/src/example` к созданному окружению Kubernetes.
+## 2. Применить манифест из директории `/src/example` к созданному окружению Kubernetes.
 
 
 
 
 ![alt text](<img/image copy 6.png>)
 
+
+**Применяем готовый манифест из example**
 
 ```
 (base) s@fedora:~/DO_H_10$ kubectl apply -f src/example/microservices.yml
@@ -143,11 +153,19 @@ service/order created
 
 
 
+![alt text](<img/image copy 9.png>)
 
+**Проверяем что все поды запущены**
 
-
-
-
+```
+(base) s@fedora:~/DO_H_10$ kubectl get pods 
+NAME                       READY   STATUS    RESTARTS      AGE
+apache-7f5f9d6b55-vhxqg    1/1     Running   1 (30m ago)   15h
+catalog-56d5b6f446-lhg7q   1/1     Running   1 (30m ago)   15h
+customer-99d48549d-fjqcc   1/1     Running   1 (30m ago)   15h
+order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
+(base) s@fedora:~/DO_H_10$ 
+```
 
 
 ## 3. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`.
