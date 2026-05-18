@@ -647,11 +647,68 @@ Create an order
 
 ## 1. Написал собственные yml-файлы манифестов для приложения из первого проекта (`/src/services`), реализующие следующее:
 
-##   - карту конфигурации со значениями хостов БД и сервисов,
+##   1.1 карту конфигурации со значениями хостов БД и сервисов,
 
-##   - секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
 
-##   - поды и сервисы для всех модулей приложения: postgres, rabbitmq и 7 сервисов приложения. Для всех сервисов нужно использовать единственную реплику.
+
+
+
+
+![alt text](<img/image copy 29.png>)
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ cat src/k8s/01-configmap.yaml
+# ConfigMap — несекретные настройки.
+# Хосты внутри Kubernetes — это имена Service-объектов (внутренний DNS).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # PostgreSQL
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+
+  # RabbitMQ
+  RABBIT_MQ_HOST: rabbitmq
+  RABBIT_MQ_PORT: "5672"
+  RABBIT_MQ_QUEUE_NAME: booking_statistics_queue
+  RABBIT_MQ_EXCHANGE: booking_statistics_exchange
+
+  # Хосты сервисов = имена Service-объектов
+  SESSION_SERVICE_HOST: session-service
+  SESSION_SERVICE_PORT: "8081"
+  HOTEL_SERVICE_HOST: hotel-service
+  HOTEL_SERVICE_PORT: "8082"
+  BOOKING_SERVICE_HOST: booking-service
+  BOOKING_SERVICE_PORT: "8083"
+  PAYMENT_SERVICE_HOST: payment-service
+  PAYMENT_SERVICE_PORT: "8084"
+  LOYALTY_SERVICE_HOST: loyalty-service
+  LOYALTY_SERVICE_PORT: "8085"
+  REPORT_SERVICE_HOST: report-service
+  REPORT_SERVICE_PORT: "8086"
+```
+
+
+
+
+
+![alt text](<img/image copy 30.png>)
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/01-configmap.yaml
+configmap/app-config unchanged
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get configmap app-config
+NAME         DATA   AGE
+app-config   18     25m
+```
+
+
+##   1.2 секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
+
+##   1.3 поды и сервисы для всех модулей приложения: postgres, rabbitmq и 7 сервисов приложения. Для всех сервисов нужно использовать единственную реплику.
 
 
 
@@ -660,7 +717,7 @@ Create an order
 
 
 
-
+**все 11 файлов на месте**
 
 ```
 s@Vivo:~/kubernetes-manifest-deployment$ tree src/k8s/
