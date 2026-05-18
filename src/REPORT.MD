@@ -241,7 +241,6 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 ## 3. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`.
 
 
-**Главная страница приложения**
 
 ![alt text](<img/image copy 11.png>)
 
@@ -404,7 +403,6 @@ order        LoadBalancer   10.108.101.152   <pending>     8080:30939/TCP   18h
 ![alt text](<img/image copy 13.png>)
 
 
-
 ```
 (base) s@fedora:~/DO_H_10$ minikube service apache
 ┌───────────┬────────┬─────────────┬───────────────────────────┐
@@ -417,8 +415,13 @@ order        LoadBalancer   10.108.101.152   <pending>     8080:30939/TCP   18h
 ```
 
 
+
+**Главная страница приложения**
+
+
 ![alt text](<img/image copy 14.png>)
 
+**Браузер с apache — скриншот страницы**
 
 ```
 Order Processing
