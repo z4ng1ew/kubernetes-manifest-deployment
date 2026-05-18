@@ -130,6 +130,43 @@ kubeconfig: Configured
 ## 2. Применить манифест из директории `/src/example` к созданному окружению Kubernetes.
 
 
+![alt text](<img/image copy 18.png>)
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ minikube service list
+┌─────────────┬────────────────┬──────────────┬─────┐
+│  NAMESPACE  │      NAME      │ TARGET PORT  │ URL │
+├─────────────┼────────────────┼──────────────┼─────┤
+│ default     │ kubernetes     │ No node port │     │
+│ kube-system │ kube-dns       │ No node port │     │
+│ kube-system │ metrics-server │ No node port │     │
+└─────────────┴────────────────┴──────────────┴─────┘
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/example/microservices.yml
+deployment.apps/apache created
+deployment.apps/catalog created
+deployment.apps/customer created
+deployment.apps/order created
+service/apache created
+service/catalog created
+service/customer created
+service/order created
+s@Vivo:~/kubernetes-manifest-deployment$ minikube service list
+┌─────────────┬────────────────┬──────────────┬───────────────────────────┐
+│  NAMESPACE  │      NAME      │ TARGET PORT  │            URL            │
+├─────────────┼────────────────┼──────────────┼───────────────────────────┤
+│ default     │ apache         │ 80           │ http://192.168.49.2:32359 │
+│ default     │ catalog        │ 8080         │ http://192.168.49.2:31760 │
+│ default     │ customer       │ 8080         │ http://192.168.49.2:30294 │
+│ default     │ kubernetes     │ No node port │                           │
+│ default     │ order          │ 8080         │ http://192.168.49.2:30878 │
+│ kube-system │ kube-dns       │ No node port │                           │
+│ kube-system │ metrics-server │ No node port │                           │
+└─────────────┴────────────────┴──────────────┴───────────────────────────┘
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
 
 
 ![alt text](<img/image copy 6.png>)

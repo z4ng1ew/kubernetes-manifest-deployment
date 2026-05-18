@@ -11,6 +11,11 @@ minikube start --memory=4096 --cpus=2 --driver=docker
 # Применить пример (из репозитория проекта)
 kubectl apply -f src/example/
 
+
+kubectl apply -f src/example/microservices.yml
+
+
+
 # Дашборд (откроется в браузере)
 minikube dashboard
 
