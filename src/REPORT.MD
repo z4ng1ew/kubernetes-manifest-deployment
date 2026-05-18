@@ -566,16 +566,158 @@ s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откр
 ## 5. Удостовериться в работоспособности развернутого приложения, открыв в браузере страницу приложения (сервис apache).
 
 
-kubectl get nodes
 
-kubectl get pods -A
+
+
+
+
+
+
+
+![alt text](<img/image copy 13.png>)
+
+
+```
+(base) s@fedora:~/DO_H_10$ minikube service apache
+┌───────────┬────────┬─────────────┬───────────────────────────┐
+│ NAMESPACE │  NAME  │ TARGET PORT │            URL            │
+├───────────┼────────┼─────────────┼───────────────────────────┤
+│ default   │ apache │ 80          │ http://192.168.49.2:31726 │
+└───────────┴────────┴─────────────┴───────────────────────────┘
+🎉  Opening service default/apache in default browser...
+(base) s@fedora:~/DO_H_10$ 
+```
+
+
+
+**Главная страница приложения**
+
+
+![alt text](<img/image copy 14.png>)
+
+
+**Браузер с apache — скриншот страницы**
+
+
+```
+Order Processing
+Customer
+List / add / remove customers
+Catalog
+List / add / remove items
+Catalog
+Search Items
+Order
+Create an order
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Part 2. Написание собственного манифеста
+
+### Задание
+
+1. Написать собственные yml-файлы манифестов для приложения из первого проекта (`/src/services`), реализующие следующее:
+   - карту конфигурации со значениями хостов БД и сервисов,
+   - секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
+   - поды и сервисы для всех модулей приложения: postgres, rabbitmq и 7 сервисов приложения. Для всех сервисов нужно использовать единственную реплику.
+
+2. Запустить приложение путем последовательного применения манифестов командой `kubectl apply -f <манифест>.yaml`.
+
+3. Проверить статус созданных объектов (секреты, конфигурационная карта, поды и сервисы) в кластере с помощью команд `kubectl get <тип_объекта> <имя_объекта>` и `kubectl describe <тип_объекта> <имя_объекта>`. Результат отобразить в отчете.
+
+4. Проверить наличие правильных значений секретов, применив, например, команду `kubectl get secret my-secret -o jsonpath='{.data.password}' | base64 --decode` для декодирования секрета.
+
+5. Проверить логи приложения, запущенного в кластере, командой `kubectl logs <имя_контейнера>`. Скриншот отобразить в отчете.
+
+6. Прокинуть туннели для доступа к gateway service и session service.
+
+7. Запустить функциональные тесты Postman и удостовериться в работоспособности приложения.
+
+8. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`. Отобразить в отчете следующую информацию в виде скриншотов с дашборда: текущее состояние узлов кластера, список запущенных Pod, а также другие метрики, такие как загрузка ЦП и память, логи Pod, конфигурации и секреты.
+
+9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
+   - пересоздание (recreate),
+   - последовательное обновление (rolling).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ![alt text](<img/image copy 24.png>)
 
-s@Vivo:~/kubernetes-manifest-deployment$ cd ~/kubernetes-manifest-deployment
 
-# Загружаем все 7 сервисов + postgres + rabbitmq в minikube
+
+**Загружаем все 7 сервисов + postgres + rabbitmq в minikube**
+
+```
 for img in src-postgres src-session-service src-hotel-service src-booking-service \
            src-payment-service src-loyalty-service src-report-service src-gateway-service; do
   echo "=== Загрузка $img:latest в minikube ==="
@@ -591,3 +733,22 @@ minikube image load rabbitmq:3.12-management-alpine
 === Загрузка src-report-service:latest в minikube ===
 === Загрузка src-gateway-service:latest в minikube ===
 s@Vivo:~/kubernetes-manifest-deployment$ 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
