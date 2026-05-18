@@ -423,6 +423,7 @@ order        LoadBalancer   10.108.101.152   <pending>     8080:30939/TCP   18h
 
 **Браузер с apache — скриншот страницы**
 
+
 ```
 Order Processing
 Customer
