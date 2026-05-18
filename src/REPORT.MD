@@ -569,3 +569,25 @@ s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откр
 kubectl get nodes
 
 kubectl get pods -A
+
+
+![alt text](<img/image copy 24.png>)
+
+s@Vivo:~/kubernetes-manifest-deployment$ cd ~/kubernetes-manifest-deployment
+
+# Загружаем все 7 сервисов + postgres + rabbitmq в minikube
+for img in src-postgres src-session-service src-hotel-service src-booking-service \
+           src-payment-service src-loyalty-service src-report-service src-gateway-service; do
+  echo "=== Загрузка $img:latest в minikube ==="
+  minikube image load $img:latest
+done
+minikube image load rabbitmq:3.12-management-alpine
+=== Загрузка src-postgres:latest в minikube ===
+=== Загрузка src-session-service:latest в minikube ===
+=== Загрузка src-hotel-service:latest в minikube ===
+=== Загрузка src-booking-service:latest в minikube ===
+=== Загрузка src-payment-service:latest в minikube ===
+=== Загрузка src-loyalty-service:latest в minikube ===
+=== Загрузка src-report-service:latest в minikube ===
+=== Загрузка src-gateway-service:latest в minikube ===
+s@Vivo:~/kubernetes-manifest-deployment$ 
