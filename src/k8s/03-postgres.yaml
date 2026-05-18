@@ -1,0 +1,54 @@
+# PostgreSQL — твой кастомный образ src-postgres:latest.
+# В Dockerfile уже встроены: init.sql (создаёт 6 БД), init-check.sh (проверка),
+# а также POSTGRES_USER/PASSWORD/DB по умолчанию = postgres.
+# Здесь мы передаём те же значения через Secret — для наглядности и единого
+# источника правды (Secret = единое место для секретов).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: src-postgres:latest
+          imagePullPolicy: Never   # Использовать локальный образ из minikube
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
