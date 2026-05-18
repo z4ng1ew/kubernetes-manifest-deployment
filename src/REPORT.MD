@@ -240,6 +240,9 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 
 ## 3. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`.
 
+
+**Главная страница приложения**
+
 ![alt text](<img/image copy 11.png>)
 
 ![alt text](<img/image copy 10.png>)
