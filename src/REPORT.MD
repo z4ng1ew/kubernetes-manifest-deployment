@@ -569,6 +569,11 @@ s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откр
 
 
 
+- URL http://192.168.49.2:31726 — IP minikube + NodePort, который выдала команда minikube service apache
+
+- Заголовок «Order Processing» — это страница приложения apache
+
+- Содержимое работает — ссылки на Customer, Catalog, Order с описаниями (List/add/remove customers, items, Search Items, Create an order)
 
 
 
