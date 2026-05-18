@@ -706,6 +706,101 @@ app-config   18     25m
 ```
 
 
+
+
+![alt text](<img/image copy 31.png>)
+
+![alt text](<img/image copy 32.png>)
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe configmap app-config
+Name:         app-config
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+BOOKING_SERVICE_HOST:
+----
+booking-service
+
+BOOKING_SERVICE_PORT:
+----
+8083
+
+HOTEL_SERVICE_HOST:
+----
+hotel-service
+
+HOTEL_SERVICE_PORT:
+----
+8082
+
+LOYALTY_SERVICE_HOST:
+----
+loyalty-service
+
+LOYALTY_SERVICE_PORT:
+----
+8085
+
+PAYMENT_SERVICE_HOST:
+----
+payment-service
+
+PAYMENT_SERVICE_PORT:
+----
+8084
+
+POSTGRES_HOST:
+----
+postgres
+
+POSTGRES_PORT:
+----
+5432
+
+RABBIT_MQ_EXCHANGE:
+----
+booking_statistics_exchange
+
+RABBIT_MQ_HOST:
+----
+rabbitmq
+
+RABBIT_MQ_PORT:
+----
+5672
+
+RABBIT_MQ_QUEUE_NAME:
+----
+booking_statistics_queue
+
+REPORT_SERVICE_HOST:
+----
+report-service
+
+REPORT_SERVICE_PORT:
+----
+8086
+
+SESSION_SERVICE_HOST:
+----
+session-service
+
+SESSION_SERVICE_PORT:
+----
+8081
+
+
+BinaryData
+====
+
+Events:  <none>
+```
+
+
 ##   1.2 секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
 
 ##   1.3 поды и сервисы для всех модулей приложения: postgres, rabbitmq и 7 сервисов приложения. Для всех сервисов нужно использовать единственную реплику.
