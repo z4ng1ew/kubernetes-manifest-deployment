@@ -705,12 +705,15 @@ NAME         DATA   AGE
 app-config   18     25m
 ```
 
-
+**Доказательство что ConfigMap создан**
 
 
 ![alt text](<img/image copy 31.png>)
 
 ![alt text](<img/image copy 32.png>)
+
+**видны все ключи и значения**
+
 
 ```
 s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe configmap app-config
