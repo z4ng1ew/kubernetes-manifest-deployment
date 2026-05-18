@@ -654,6 +654,49 @@ Create an order
 
 
 
+![alt text](<img/image copy 25.png>)
+
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ tree src/k8s/
+src/k8s/
+├── 01-configmap copy.yaml
+├── 01-configmap.yaml
+├── 02-secrets.yaml
+├── 03-postgres.yaml
+├── 04-rabbitmq.yaml
+├── 05-session-service.yaml
+├── 06-hotel-service.yaml
+├── 07-booking-service.yaml
+├── 08-payment-service.yaml
+├── 09-loyalty-service.yaml
+├── 10-report-service.yaml
+└── 11-gateway-service.yaml
+
+1 directory, 12 files
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/01-configmap.yaml
+configmap/app-config created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/02-secrets.yaml
+secret/app-secrets created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/03-postgres.yaml
+deployment.apps/postgres created
+service/postgres created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/04-rabbitmq.yaml
+deployment.apps/rabbitmq created
+service/rabbitmq created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-54b5c94c4c-ts52f   1/1     Running   0          19s
+rabbitmq-746df59b5c-xjg26   1/1     Running   0          12s
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods -w
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-54b5c94c4c-ts52f   1/1     Running   0          25s
+rabbitmq-746df59b5c-xjg26   1/1     Running   0          18s
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
 
 
 
@@ -664,6 +707,33 @@ Create an order
 
 
 
+![alt text](<img/image copy 26.png>)
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/05-session-service.yaml
+deployment.apps/session-service created
+service/session-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/06-hotel-service.yaml
+deployment.apps/hotel-service created
+service/hotel-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/07-booking-service.yaml
+deployment.apps/booking-service created
+service/booking-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/08-payment-service.yaml
+deployment.apps/payment-service created
+service/payment-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/09-loyalty-service.yaml
+deployment.apps/loyalty-service created
+service/loyalty-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/10-report-service.yaml
+deployment.apps/report-service created
+service/report-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/11-gateway-service.yaml
+deployment.apps/gateway-service created
+service/gateway-service created
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
 
 
 
@@ -671,18 +741,34 @@ Create an order
 
 
 
+![alt text](<img/image copy 27.png>)
 
-
-
-
-
-
-
-
-
-
-
-
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods
+NAME                               READY   STATUS    RESTARTS   AGE
+booking-service-6db4557dd9-fvm5w   1/1     Running   0          2m26s
+gateway-service-85788889bc-ns8ht   1/1     Running   0          115s
+hotel-service-76cd4f799-8q5bs      1/1     Running   0          2m33s
+loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          2m9s
+payment-service-74b69df5df-tncgd   1/1     Running   0          2m17s
+postgres-54b5c94c4c-ts52f          1/1     Running   0          4m27s
+rabbitmq-746df59b5c-xjg26          1/1     Running   0          4m20s
+report-service-684989fdcf-7hjbx    1/1     Running   0          2m3s
+session-service-5cfcc4db9-448hm    1/1     Running   0          2m38s
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get services
+NAME              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
+booking-service   ClusterIP   10.98.24.93      <none>        8083/TCP             2m32s
+gateway-service   NodePort    10.105.174.71    <none>        8087:32003/TCP       2m1s
+hotel-service     ClusterIP   10.98.139.148    <none>        8082/TCP             2m39s
+kubernetes        ClusterIP   10.96.0.1        <none>        443/TCP              37m
+loyalty-service   ClusterIP   10.101.26.223    <none>        8085/TCP             2m15s
+payment-service   ClusterIP   10.97.72.30      <none>        8084/TCP             2m23s
+postgres          ClusterIP   10.98.27.86      <none>        5432/TCP             4m33s
+rabbitmq          ClusterIP   10.98.207.200    <none>        5672/TCP,15672/TCP   4m26s
+report-service    ClusterIP   10.107.193.152   <none>        8086/TCP             2m9s
+session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP       2m44s
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
 
 
 2. Запустить приложение путем последовательного применения манифестов командой `kubectl apply -f <манифест>.yaml`.
