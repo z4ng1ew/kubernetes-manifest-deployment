@@ -644,12 +644,14 @@ Create an order
 
 ## Part 2. Написание собственного манифеста
 
-### Задание
 
-1. Написать собственные yml-файлы манифестов для приложения из первого проекта (`/src/services`), реализующие следующее:
-   - карту конфигурации со значениями хостов БД и сервисов,
-   - секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
-   - поды и сервисы для всех модулей приложения: postgres, rabbitmq и 7 сервисов приложения. Для всех сервисов нужно использовать единственную реплику.
+## 1. Написал собственные yml-файлы манифестов для приложения из первого проекта (`/src/services`), реализующие следующее:
+
+##   - карту конфигурации со значениями хостов БД и сервисов,
+
+##   - секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
+
+##   - поды и сервисы для всех модулей приложения: postgres, rabbitmq и 7 сервисов приложения. Для всех сервисов нужно использовать единственную реплику.
 
 
 
@@ -771,7 +773,262 @@ s@Vivo:~/kubernetes-manifest-deployment$
 ```
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 2. Запустить приложение путем последовательного применения манифестов командой `kubectl apply -f <манифест>.yaml`.
+
+
+
+![alt text](<img/image copy 28.png>)
+
+
+**minikube dashboard. Все 9 сервисов запущены**
+
+
+
+
+```
+Workload Status
+Running: 9
+Deployments
+Running: 9
+Pods
+Running: 9
+Replica Sets
+Deployments
+Name
+Images
+Labels
+Pods
+Created
+gateway-service
+src-gateway-service:latest
+app: gateway-service
+1 / 1
+12 minutes ago
+report-service
+src-report-service:latest
+app: report-service
+1 / 1
+12 minutes ago
+loyalty-service
+src-loyalty-service:latest
+app: loyalty-service
+1 / 1
+12 minutes ago
+payment-service
+src-payment-service:latest
+app: payment-service
+1 / 1
+12 minutes ago
+booking-service
+src-booking-service:latest
+app: booking-service
+1 / 1
+12 minutes ago
+hotel-service
+src-hotel-service:latest
+app: hotel-service
+1 / 1
+13 minutes ago
+session-service
+src-session-service:latest
+app: session-service
+1 / 1
+13 minutes ago
+rabbitmq
+rabbitmq:3.12-management-alpine
+app: rabbitmq
+1 / 1
+14 minutes ago
+postgres
+src-postgres:latest
+app: postgres
+1 / 1
+14 minutes ago
+Pods
+Name
+Images
+Labels
+Node
+Status
+Restarts
+CPU Usage (cores)
+Memory Usage (bytes)
+Created
+gateway-service-85788889bc-ns8ht
+src-gateway-service:latest
+app: gateway-service
+pod-template-hash: 85788889bc
+minikube
+Running
+0
+-
+-
+12 minutes ago
+report-service-684989fdcf-7hjbx
+src-report-service:latest
+app: report-service
+pod-template-hash: 684989fdcf
+minikube
+Running
+0
+-
+-
+12 minutes ago
+loyalty-service-5bcdbd4594-7slp4
+src-loyalty-service:latest
+app: loyalty-service
+pod-template-hash: 5bcdbd4594
+minikube
+Running
+0
+-
+-
+12 minutes ago
+payment-service-74b69df5df-tncgd
+src-payment-service:latest
+app: payment-service
+pod-template-hash: 74b69df5df
+minikube
+Running
+0
+-
+-
+12 minutes ago
+booking-service-6db4557dd9-fvm5w
+src-booking-service:latest
+app: booking-service
+pod-template-hash: 6db4557dd9
+minikube
+Running
+0
+-
+-
+12 minutes ago
+hotel-service-76cd4f799-8q5bs
+src-hotel-service:latest
+app: hotel-service
+pod-template-hash: 76cd4f799
+minikube
+Running
+0
+-
+-
+13 minutes ago
+session-service-5cfcc4db9-448hm
+src-session-service:latest
+app: session-service
+pod-template-hash: 5cfcc4db9
+minikube
+Running
+0
+-
+-
+13 minutes ago
+rabbitmq-746df59b5c-xjg26
+rabbitmq:3.12-management-alpine
+app: rabbitmq
+pod-template-hash: 746df59b5c
+minikube
+Running
+0
+-
+-
+14 minutes ago
+postgres-54b5c94c4c-ts52f
+src-postgres:latest
+app: postgres
+pod-template-hash: 54b5c94c4c
+minikube
+Running
+0
+-
+-
+14 minutes ago
+Replica Sets
+Name
+Images
+Labels
+Pods
+Created
+gateway-service-85788889bc
+src-gateway-service:latest
+app: gateway-service
+pod-template-hash: 85788889bc
+1 / 1
+12 minutes ago
+report-service-684989fdcf
+src-report-service:latest
+app: report-service
+pod-template-hash: 684989fdcf
+1 / 1
+12 minutes ago
+loyalty-service-5bcdbd4594
+src-loyalty-service:latest
+app: loyalty-service
+pod-template-hash: 5bcdbd4594
+1 / 1
+12 minutes ago
+payment-service-74b69df5df
+src-payment-service:latest
+app: payment-service
+pod-template-hash: 74b69df5df
+1 / 1
+12 minutes ago
+booking-service-6db4557dd9
+src-booking-service:latest
+app: booking-service
+pod-template-hash: 6db4557dd9
+1 / 1
+12 minutes ago
+hotel-service-76cd4f799
+src-hotel-service:latest
+app: hotel-service
+pod-template-hash: 76cd4f799
+1 / 1
+13 minutes ago
+session-service-5cfcc4db9
+src-session-service:latest
+app: session-service
+pod-template-hash: 5cfcc4db9
+1 / 1
+13 minutes ago
+rabbitmq-746df59b5c
+rabbitmq:3.12-management-alpine
+app: rabbitmq
+pod-template-hash: 746df59b5c
+1 / 1
+14 minutes ago
+postgres-54b5c94c4c
+src-postgres:latest
+app: postgres
+pod-template-hash: 54b5c94c4c
+1 / 1
+14 minutes ago
+```
+
+
+
+
+
+
+
+
+
 
 
 
