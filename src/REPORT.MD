@@ -444,10 +444,6 @@ Create an order
 
 
 
-
-
-
-
 ```
 (base) s@fedora:~/DO_H_10$ minikube service catalog
 ┌───────────┬─────────┬─────────────┬───────────────────────────┐
@@ -470,6 +466,40 @@ Create an order
 
 
 
+![alt text](<img/image copy 20.png>)
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ minikube service customer
+┌───────────┬──────────┬─────────────┬───────────────────────────┐
+│ NAMESPACE │   NAME   │ TARGET PORT │            URL            │
+├───────────┼──────────┼─────────────┼───────────────────────────┤
+│ default   │ customer │ 8080        │ http://192.168.49.2:30294 │
+└───────────┴──────────┴─────────────┴───────────────────────────┘
+🎉  Opening service default/customer in default browser...
+s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откроются в текущем сеансе браузера.
+```
+
+
+
+
+![alt text](<img/image copy 21.png>)
+
+
+```
+{
+  "_links": {
+    "customer": {
+      "href": "http://192.168.49.2:30294/customer{?page,size,sort}",
+      "templated": true
+    },
+    "profile": {
+      "href": "http://192.168.49.2:30294/profile"
+    }
+  }
+}
+```
 
 
 
@@ -477,9 +507,36 @@ Create an order
 
 
 
+![http://192.168.49.2:30878/](<img/image copy 22.png>)
 
 
 
+```
+Home List
+Order : View all
+ID	Customer	Total Price	
+No orders
+Add Order
+```
+
+
+
+
+![alt text](<img/image copy 23.png>)
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ minikube service order
+┌───────────┬───────┬─────────────┬───────────────────────────┐
+│ NAMESPACE │ NAME  │ TARGET PORT │            URL            │
+├───────────┼───────┼─────────────┼───────────────────────────┤
+│ default   │ order │ 8080        │ http://192.168.49.2:30878 │
+└───────────┴───────┴─────────────┴───────────────────────────┘
+🎉  Opening service default/order in default browser...
+s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откроются в текущем сеансе браузера.
+
+
+```
 
 
 
