@@ -251,6 +251,8 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 
 ![alt text](<img/image copy 17.png>)
 
+![alt text](<img/image copy 19.png>)
+
 ```
 Workload Status
 Running: 4
