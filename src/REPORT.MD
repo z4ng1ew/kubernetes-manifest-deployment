@@ -2151,27 +2151,65 @@ minikube addons enable metrics-server    # для отображения CPU/Mem
 minikube dashboard
 ```
 
-### 8.1. Узлы кластера
-![Nodes](img/dashboard-nodes.png)
+## 8.1. Узлы кластера
+
+![Pods](<img/image copy 69.png>)
+
 Кластер состоит из одного узла `minikube` со статусом Ready.
 
-### 8.2. Запущенные Pod
-![Pods](img/dashboard-pods.png)
+
+
+
+
+## 8.2. Запущенные Pod
+
+![Pods](<img/image copy 70.png>)
+
+![alt text](<img/image copy 71.png>)
+
 Все 9 подов в статусе Running: postgres, rabbitmq и 7 сервисов приложения.
 
-### 8.3. Метрики CPU и Memory
-![CPU/Memory](img/dashboard-metrics.png)
 
-### 8.4. Логи Pod
-![Logs postgres](img/dashboard-logs-postgres.png)
+
+## 8.3. Метрики CPU и Memory
+![CPU/Memory](<img/image copy 72.png>)
+
+
+
+
+
+
+
+
+
+
+
+
+## 8.4. Логи Pod
+![Logs postgres](<img/image copy 73.png>)
+
+![alt text](<img/image copy 74.png>)
+
 Видно успешное выполнение init.sql и init-check.sh — все 6 БД созданы.
 
-### 8.5. ConfigMap
+
+
+## 8.5. ConfigMap
+
 ![ConfigMap](img/dashboard-configmap.png)
+
+
 Все 15 ключей карты конфигурации.
 
-### 8.6. Secret
+
+
+
+
+
+## 8.6. Secret
+
 ![Secret](img/dashboard-secrets.png)
+
 7 секретных ключей. Значения скрыты — это штатное поведение Kubernetes для объекта Secret.
 
 
@@ -2229,7 +2267,54 @@ minikube dashboard
 
 
 
+8.1. Состояние узлов кластера
+Меню: Cluster → Nodes
+Кликни на узел minikube чтобы зайти внутрь — там видно:
 
+статус Ready
+ОС, версия kubelet, kube-proxy
+адреса, CIDR подов
+общие ресурсы (Allocated resources)
+
+📸 2 скриншота:
+
+Общий список узлов (1 узел minikube)
+Детали узла minikube (внутрь)
+
+8.2. Список запущенных Pod
+Меню: Workloads → Pods
+Должны быть видны все 9 подов: postgres, rabbitmq + 7 сервисов. Все READY.
+📸 1 скриншот: общая таблица подов со статусом Running.
+8.3. Метрики ЦП и памяти
+Меню: Workloads → Deployments (или внутри конкретного пода)
+Если metrics-server включён — увидишь графики CPU Usage и Memory Usage сверху на каждом Deployment.
+📸 2 скриншота:
+
+Страница Deployments с графиками вверху (если они уже отрисовались)
+Или зайди в любой Pod (например gateway-service-...) → во вкладке Overview будут детальные графики
+
+⚠️ Если графики так и не появятся за 2-3 минуты — открой Lens, оттуда тоже подойдёт для метрик. Главное чтобы где-то были видны цифры/графики CPU и Memory.
+8.4. Логи Pod
+Меню: `Workloads → Pods → [клик на любой под] → кнопка "Logs" справа сверху (значок страницы с текстом)**
+Лучшие кандидаты для скриншота:
+
+postgres — увидишь вывод твоего init-check.sh («Все 6 баз данных созданы успешно»)
+gateway-service — Spring Boot стартует с красивым ASCII-баннером
+
+📸 1-2 скриншота: окно логов на полном экране для postgres + одного из сервисов.
+8.5. Конфигурации и секреты
+Меню: Config and Storage → Config Maps
+Кликни на app-config — видны все 15 ключей с их значениями.
+Меню: Config and Storage → Secrets
+Кликни на app-secrets — видны 7 ключей. Значения скрыты (<bytes>), но рядом есть «глазик» — можно открыть для одного из них (но в отчёт лучше показать скрытые — это правильное поведение Secret).
+📸 2 скриншота:
+
+ConfigMap app-config с раскрытым содержимым
+Secret app-secrets со списком ключей (значения скрыты — это особенность Secret и она тоже показывает работу)
+
+Итого по пункту 8
+Минимум 6 скриншотов, по списку:
+#ЧтоГде1Узел кластера (Nodes)Cluster → Nodes2Список подовWorkloads → Pods3Метрики CPU/MemoryWorkloads → Deployments (с metrics-server)4Логи postgresPods → postgres → Logs5ConfigMap app-configConfig and Storage → Config Maps6Secret app-secretsConfig and Storage → Secrets
 
 
 
