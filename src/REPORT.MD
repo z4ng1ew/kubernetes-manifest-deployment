@@ -1739,7 +1739,61 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-4. Проверить наличие правильных значений секретов, применив, например, команду `kubectl get secret my-secret -o jsonpath='{.data.password}' | base64 --decode` для декодирования секрета.
+
+
+
+
+
+
+
+
+
+
+
+
+## 3.2. Команды kubectl get <тип> <имя> для всех объектов
+
+
+
+
+
+
+
+![alt text](<img/image copy 51.png>)
+
+
+
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod booking-service-6db4557dd9-fvm5w
+NAME                               READY   STATUS    RESTARTS   AGE
+booking-service-6db4557dd9-fvm5w   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod gateway-service-85788889bc-ns8ht
+NAME                               READY   STATUS    RESTARTS   AGE
+gateway-service-85788889bc-ns8ht   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod loyalty-service-5bcdbd4594-7slp4
+NAME                               READY   STATUS    RESTARTS   AGE
+loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod payment-service-74b69df5df-tncgd
+NAME                               READY   STATUS    RESTARTS   AGE
+payment-service-74b69df5df-tncgd   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod postgres-54b5c94c4c-ts52f
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-54b5c94c4c-ts52f   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod rabbitmq-746df59b5c-xjg26
+NAME                        READY   STATUS    RESTARTS   AGE
+rabbitmq-746df59b5c-xjg26   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod report-service-684989fdcf-7hjbx
+NAME                              READY   STATUS    RESTARTS   AGE
+report-service-684989fdcf-7hjbx   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod session-service-5cfcc4db9-448hm
+NAME                              READY   STATUS    RESTARTS   AGE
+session-service-5cfcc4db9-448hm   1/1     Running   0          22h
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
 
 
 
@@ -1769,11 +1823,80 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
+## 4. Проверить наличие правильных значений секретов, применив, например, команду `kubectl get secret my-secret -o jsonpath='{.data.password}' | base64 --decode` для декодирования секрета.
+
+**логи**
+
+
+![alt text](<img/image copy 53.png>)
 
 
 
 
 
+**Команда дословно из задания**
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 52.png>)
+
+
+**Один скриншот с выводом всех 3-4 декодирований — видно postgres, postgres, b51ceda2-bfa5-....**
+
+**Команда дословно из задания**
+
+**Дополнительно — другие ключи для полноты**
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get secret app-secrets -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 --decode
+echo  
+postgres
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get secret app-secrets -o jsonpath='{.data.POSTGRES_USER}' | base64 --decode
+echo
+postgres
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get secret app-secrets -o jsonpath='{.data.GATEWAY_SERVICE_UUID}' | base64 --decode
+echo
+b51ceda2-bfa5-11eb-8529-0242ac130003
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5. Проверить логи приложения, запущенного в кластере, командой `kubectl logs <имя_контейнера>`. Скриншот отобразить в отчете.
+
+6. Прокинуть туннели для доступа к gateway service и session service.
+
+7. Запустить функциональные тесты Postman и удостовериться в работоспособности приложения.
+
+8. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`. Отобразить в отчете следующую информацию в виде скриншотов с дашборда: текущее состояние узлов кластера, список запущенных Pod, а также другие метрики, такие как загрузка ЦП и память, логи Pod, конфигурации и секреты.
+
+9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
+   - пересоздание (recreate),
+   - последовательное обновление (rolling).
+
+
+
+
+
+![alt text](<img/image copy 54.png>)
 
 
 
