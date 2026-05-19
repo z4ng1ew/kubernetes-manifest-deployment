@@ -2030,7 +2030,26 @@ $ minikube service gateway-service
 ![alt text](<img/image copy 66.png>)
 
 
+
 ![alt text](<img/image copy 67.png>)
+
+
+**session-service**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2040,7 +2059,85 @@ $ minikube service gateway-service
 
 7. Запустить функциональные тесты Postman и удостовериться в работоспособности приложения.
 
-8. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`. Отобразить в отчете следующую информацию в виде скриншотов с дашборда: текущее состояние узлов кластера, список запущенных Pod, а также другие метрики, такие как загрузка ЦП и память, логи Pod, конфигурации и секреты.
+
+
+
+![alt text](<img/image copy 68.png>)
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ newman run src/application_tests.postman_collection.json \
+  --env-var "API_HOST=192.168.49.2" \
+  --env-var "USERS_PORT=32562" \
+  --env-var "GATEWAY_PORT=32003" \
+  --env-var "BASIC=Basic VXNlcjpxd2VydHk=" \
+  --env-var "HOTEL_UID=9d05ba36-bf8d-11eb-8529-0242ac130003"
+newman
+
+Application Tests (k8s)
+
+→ Login User
+  GET http://192.168.49.2:32562/api/v1/auth/authorize [200 OK, 912B, 416ms]
+  ✓  Login as a regular user
+
+→ Get Hotels
+  GET http://192.168.49.2:32003/api/v1/gateway/hotels [200 OK, 904B, 662ms]
+  ✓  Get hotels info
+
+→ Get Hotel
+  GET http://192.168.49.2:32003/api/v1/gateway/hotels/9d05ba36-bf8d-11eb-8529-0242ac130003 [200 OK, 590B, 68ms]
+  ✓  Get hotel info
+
+→ Book Hotel
+  POST http://192.168.49.2:32003/api/v1/gateway/booking [201 Created, 399B, 2.4s]
+  ✓  Book hotel
+
+→ Get User's Loyalty Balance
+  GET http://192.168.49.2:32003/api/v1/gateway/loyalty [200 OK, 465B, 71ms]
+  ✓  Get user's loyalty balance
+
+┌─────────────────────────┬────────────────────┬───────────────────┐
+│                         │           executed │            failed │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              iterations │                  1 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│                requests │                  5 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│            test-scripts │                  5 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│      prerequest-scripts │                  0 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              assertions │                  5 │                 0 │
+├─────────────────────────┴────────────────────┴───────────────────┤
+│ total run duration: 3.7s                                         │
+├──────────────────────────────────────────────────────────────────┤
+│ total data received: 654B (approx)                               │
+├──────────────────────────────────────────────────────────────────┤
+│ average response time: 735ms [min: 68ms, max: 2.4s, s.d.: 890ms] │
+└──────────────────────────────────────────────────────────────────┘
+s@Vivo:~/kubernetes-manifest-deployment$
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`. Отобразить в отчете следующую информацию в виде скриншотов с дашборда: 
+
+    текущее состояние узлов кластера, 
+    список запущенных Pod, 
+    загрузка ЦП и память, 
+    логи Pod, 
+    конфигурации и секреты.
 
 9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
    - пересоздание (recreate),

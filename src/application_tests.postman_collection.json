@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "81bf0180-14f8-4a88-862d-a9ac7a9772d0",
-		"name": "Application Tests",
+		"name": "Application Tests (k8s)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -24,30 +24,20 @@
 			"request": {
 				"method": "GET",
 				"header": [
-					{
-						"key": "authorization",
-						"value": "{{BASIC}}",
-						"type": "default"
-					}
+					{ "key": "authorization", "value": "{{BASIC}}", "type": "default" }
 				],
 				"url": {
-					"raw": "{{API_HOST}}:{{USERS_PORT}}/api/v1/auth/authorize",
-					"host": [
-						"{{API_HOST}}"
-					],
+					"raw": "http://{{API_HOST}}:{{USERS_PORT}}/api/v1/auth/authorize",
+					"protocol": "http",
+					"host": [ "{{API_HOST}}" ],
 					"port": "{{USERS_PORT}}",
-					"path": [
-						"api",
-						"v1",
-						"auth",
-						"authorize"
-					]
+					"path": [ "api", "v1", "auth", "authorize" ]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Get Hotles",
+			"name": "Get Hotels",
 			"event": [
 				{
 					"listen": "test",
@@ -64,24 +54,14 @@
 			"request": {
 				"method": "GET",
 				"header": [
-					{
-						"key": "authorization",
-						"value": "{{BEARER}}",
-						"type": "default"
-					}
+					{ "key": "authorization", "value": "{{BEARER}}", "type": "default" }
 				],
 				"url": {
-					"raw": "{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/hotels",
-					"host": [
-						"{{API_HOST}}"
-					],
+					"raw": "http://{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/hotels",
+					"protocol": "http",
+					"host": [ "{{API_HOST}}" ],
 					"port": "{{GATEWAY_PORT}}",
-					"path": [
-						"api",
-						"v1",
-						"gateway",
-						"hotels"
-					]
+					"path": [ "api", "v1", "gateway", "hotels" ]
 				}
 			},
 			"response": []
@@ -93,7 +73,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Get hotels info\", function() {",
+							"pm.test(\"Get hotel info\", function() {",
 							"    pm.response.to.have.status(200)",
 							"});"
 						],
@@ -104,25 +84,14 @@
 			"request": {
 				"method": "GET",
 				"header": [
-					{
-						"key": "authorization",
-						"value": "{{BEARER}}",
-						"type": "default"
-					}
+					{ "key": "authorization", "value": "{{BEARER}}", "type": "default" }
 				],
 				"url": {
-					"raw": "{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/hotels/{{HOTEL_UID}}",
-					"host": [
-						"{{API_HOST}}"
-					],
+					"raw": "http://{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/hotels/{{HOTEL_UID}}",
+					"protocol": "http",
+					"host": [ "{{API_HOST}}" ],
 					"port": "{{GATEWAY_PORT}}",
-					"path": [
-						"api",
-						"v1",
-						"gateway",
-						"hotels",
-						"{{HOTEL_UID}}"
-					]
+					"path": [ "api", "v1", "gateway", "hotels", "{{HOTEL_UID}}" ]
 				}
 			},
 			"response": []
@@ -145,33 +114,20 @@
 			"request": {
 				"method": "POST",
 				"header": [
-					{
-						"key": "authorization",
-						"value": "{{BEARER}}",
-						"type": "default"
-					}
+					{ "key": "authorization", "value": "{{BEARER}}", "type": "default" },
+					{ "key": "Content-Type", "value": "application/json", "type": "default" }
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"hotelUid\":\"{{HOTEL_UID}}\",\n    \"room\": 1,\n    \"paymentInfo\": \"somePaymentInfo\",\n    \"dateInterval\":{\n                \"from\": \"2022-10-18T00:00:00.000000\",\n                \"to\": \"2022-12-18T00:00:00.000000\"\n            },\n            \"roomCost\":2000\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"raw": "{\n    \"hotelUid\":\"{{HOTEL_UID}}\",\n    \"room\": 1,\n    \"paymentInfo\": \"somePaymentInfo\",\n    \"dateInterval\":{\n                \"from\": \"2026-10-18T00:00:00.000000\",\n                \"to\": \"2026-10-20T00:00:00.000000\"\n            },\n            \"roomCost\":2000\n}",
+					"options": { "raw": { "language": "json" } }
 				},
 				"url": {
-					"raw": "{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/booking",
-					"host": [
-						"{{API_HOST}}"
-					],
+					"raw": "http://{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/booking",
+					"protocol": "http",
+					"host": [ "{{API_HOST}}" ],
 					"port": "{{GATEWAY_PORT}}",
-					"path": [
-						"api",
-						"v1",
-						"gateway",
-						"booking"
-					]
+					"path": [ "api", "v1", "gateway", "booking" ]
 				}
 			},
 			"response": []
@@ -194,84 +150,26 @@
 			"request": {
 				"method": "GET",
 				"header": [
-					{
-						"key": "authorization",
-						"value": "{{BEARER}}",
-						"type": "default"
-					}
+					{ "key": "authorization", "value": "{{BEARER}}", "type": "default" }
 				],
 				"url": {
-					"raw": "{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/loyalty",
-					"host": [
-						"{{API_HOST}}"
-					],
+					"raw": "http://{{API_HOST}}:{{GATEWAY_PORT}}/api/v1/gateway/loyalty",
+					"protocol": "http",
+					"host": [ "{{API_HOST}}" ],
 					"port": "{{GATEWAY_PORT}}",
-					"path": [
-						"api",
-						"v1",
-						"gateway",
-						"loyalty"
-					]
+					"path": [ "api", "v1", "gateway", "loyalty" ]
 				}
 			},
 			"response": []
 		}
 	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
 	"variable": [
-		{
-			"key": "BASIC",
-			"value": "Basic VXNlcjpxd2VydHk=",
-			"type": "default"
-		},
-		{
-			"key": "BEARER",
-			"value": "",
-			"type": "default"
-		},
-		{
-			"key": "API_HOST",
-			"value": "localhost",
-			"type": "default"
-		},
-		{
-			"key": "USERS_PORT",
-			"value": "8081",
-			"type": "default"
-		},
-		{
-			"key": "GATEWAY_PORT",
-			"value": "8087",
-			"type": "default"
-		},
-		{
-			"key": "HOTEL_UID",
-			"value": "9d05ba36-bf8d-11eb-8529-0242ac130003",
-			"type": "default"
-		},
-		{
-			"key": "BASIC_ADMIN",
-			"value": "QWRtaW46cXdlcnR5",
-			"type": "default"
-		}
+		{ "key": "BASIC", "value": "Basic VXNlcjpxd2VydHk=", "type": "default" },
+		{ "key": "BEARER", "value": "", "type": "default" },
+		{ "key": "API_HOST", "value": "192.168.49.2", "type": "default" },
+		{ "key": "USERS_PORT", "value": "32562", "type": "default" },
+		{ "key": "GATEWAY_PORT", "value": "32003", "type": "default" },
+		{ "key": "HOTEL_UID", "value": "9d05ba36-bf8d-11eb-8529-0242ac130003", "type": "default" },
+		{ "key": "BASIC_ADMIN", "value": "Basic QWRtaW46cXdlcnR5", "type": "default" }
 	]
 }
