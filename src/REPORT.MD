@@ -2139,6 +2139,54 @@ s@Vivo:~/kubernetes-manifest-deployment$
     логи Pod, 
     конфигурации и секреты.
 
+
+
+
+
+## 8. Стандартная панель управления Kubernetes
+
+Запуск:
+```bash
+minikube addons enable metrics-server    # для отображения CPU/Memory
+minikube dashboard
+```
+
+### 8.1. Узлы кластера
+![Nodes](img/dashboard-nodes.png)
+Кластер состоит из одного узла `minikube` со статусом Ready.
+
+### 8.2. Запущенные Pod
+![Pods](img/dashboard-pods.png)
+Все 9 подов в статусе Running: postgres, rabbitmq и 7 сервисов приложения.
+
+### 8.3. Метрики CPU и Memory
+![CPU/Memory](img/dashboard-metrics.png)
+
+### 8.4. Логи Pod
+![Logs postgres](img/dashboard-logs-postgres.png)
+Видно успешное выполнение init.sql и init-check.sh — все 6 БД созданы.
+
+### 8.5. ConfigMap
+![ConfigMap](img/dashboard-configmap.png)
+Все 15 ключей карты конфигурации.
+
+### 8.6. Secret
+![Secret](img/dashboard-secrets.png)
+7 секретных ключей. Значения скрыты — это штатное поведение Kubernetes для объекта Secret.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
    - пересоздание (recreate),
    - последовательное обновление (rolling).
