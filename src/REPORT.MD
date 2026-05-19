@@ -2140,7 +2140,7 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 Запуск:
 ```bash
-minikube addons enable metrics-server    # для отображения CPU/Memory
+minikube addons enable metrics-server    
 minikube dashboard
 ```
 
