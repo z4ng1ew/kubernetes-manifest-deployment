@@ -1674,6 +1674,7 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 Терминал 2 — «replay» (для повторных запусков с разной стратегией)
 
+**<просто открываем терминал>**
 
 
 Терминал 3 — «metrics» (опционально, для дополнения) -  мониторинг ресурсов:
@@ -1687,7 +1688,47 @@ Secret `app-secrets` содержит 6 секретных ключей:
 ## Замер 1
 
 
-шаг № 1.1 - Замер 1: Recreate
+
+
+
+
+
+
+
+
+
+
+
+## Замер 1: Recreate
+
+### Шаг 1.1. Применяем манифест с Recreate стратегией (пока образ `:latest`)
+
+
+В **терминале 2**:
+
+![alt text](<img/image copy 96.png>)
+
+
+
+
+
+
+
+
+
+
+**В терминале 1 (watch) увидишь как старый под умирает и появляется новый. Подожди пока новый под станет 1/1 Running.**
+
+![alt text](<img/image copy 98.png>)
+
+
+**Терминал 1 (watch): вся история событий — видно последовательность Terminating → Pending → Running**
+
+
+
+![alt text](<img/image copy 97.png>)
+
+**Терминал 2 (time): команда + real 0m1,368s**
 
 
 
@@ -1701,12 +1742,6 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 
 
-##   - пересоздание (recreate),
-
-
-
-
-##   - последовательное обновление (rolling).
 
 
 
@@ -1729,6 +1764,241 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 
 
+
+
+
+
+
+
+
+## Замер 2: Теперь Rolling — две операции подряд
+
+
+![alt text](<img/image copy 99.png>)
+
+**В терминале 2:**
+
+Меняет стратегию Recreate → RollingUpdate
+Откатывает образ обратно :v2 → :latest (потому что в манифесте написано latest)
+
+
+
+
+
+
+![alt text](<img/image copy 101.png>)
+
+**Терминал 1: Ctrl+C, потом:**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 103.png>)
+
+
+![alt text](<img/image copy 104.png>)
+
+
+
+ - Rolling отработал — и watch показывает Идеальную картину
+
+
+Что произошло — разбор по циклам
+
+В первом watch (apply -f rolling.yaml) — переход с Recreate+v2 на Rolling+latest:
+
+
+```
+loyalty-service-68fc78958f-v8g96   1/1   Running     0   54m    ← старый под (v2)
+loyalty-service-5bcdbd4594-xmd5p   0/1   Pending     0   0s     ← НОВЫЙ создан РЯДОМ
+loyalty-service-5bcdbd4594-xmd5p   0/1   ContainerCreating
+loyalty-service-5bcdbd4594-xmd5p   1/1   Running     0   1s     ← НОВЫЙ Ready
+loyalty-service-68fc78958f-v8g96   1/1   Terminating 0   65m    ← старый умирает ПОСЛЕ
+```
+
+
+И во втором watch (set image latest → v2) — финальный замер Rolling:
+
+
+```
+loyalty-service-5bcdbd4594-xmd5p   1/1   Running     0   88s    ← старый
+loyalty-service-68fc78958f-9pbtr   0/1   Pending     0   0s     ← НОВЫЙ создан
+loyalty-service-68fc78958f-9pbtr   0/1   ContainerCreating
+loyalty-service-68fc78958f-9pbtr   1/1   Running     0   2s     ← НОВЫЙ Ready
+loyalty-service-5bcdbd4594-xmd5p   1/1   Terminating 0   2m20s  ← старый умирает ПОТОМ
+```
+
+
+
+**Ключевая разница между стратегиями видна не в цифрах, а в watch-выводе**: 
+- Recreate: старый под гибнет ДО создания нового → есть downtime
+- RollingUpdate: новый под создаётся РЯДОМ со старым → downtime отсутствует
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Сравнение результатов
+
+| Стратегия | Время (`real`) | Downtime | Пик одновременных подов | Поведение |
+|---|---|---|---|---|
+| **Recreate** | **1.368 сек** | есть | 1 | OLD → Terminating, **затем** NEW → Pending → Running |
+| **RollingUpdate** | **1.591 сек** | **нет** | 2 | NEW → Pending → Running, **затем** OLD → Terminating |
+
+## Выводы
+
+`kubectl rollout status` считает развёртывание завершённым, как только Pod достигает 
+состояния `Running` — манифест не содержит `readinessProbe` (проба готовности — 
+проверка того, что приложение реально готово принимать трафик). Поэтому абсолютные 
+цифры малы и близки друг к другу: измеряется механика оркестрации Kubernetes, а не 
+время инициализации Spring Boot (~20-30 сек).
+
+**Главное отличие стратегий видно не в цифрах, а в `kubectl get pods -w`:**
+
+- **Recreate** — старый под уходит в `Terminating` ДО создания нового. В момент 
+  переключения приложение недоступно (downtime). Подходит для систем, где две версии 
+  не могут сосуществовать (например, миграции БД).
+  
+- **RollingUpdate** — новый под создаётся РЯДОМ со старым и достигает `Running` 
+  раньше, чем старый начинает умирать. Downtime отсутствует. Это стандарт для 
+  продакшен-сервисов с требованием высокой доступности (SLA — Service Level 
+  Agreement — соглашение об уровне обслуживания).
+
+В минимальной конфигурации (`replicas: 1`) RollingUpdate чуть дольше Recreate из-за 
+ожидания готовности нового пода параллельно со старым (1.591 сек vs 1.368 сек). 
+При большем количестве реплик эта разница нивелируется преимуществом нулевого 
+простоя.
+````
+
+---
+
+# 🏁 Задание DO_H_10 выполнено
+
+Все 9 пунктов закрыты:
+
+| # | Пункт | Статус |
+|---|---|---|
+| Part 1.1-5 | Готовый манифест (apache/catalog/customer/order) | ✅ |
+| Part 2.1 | ConfigMap + Secret + 9 Deployment'ов | ✅ |
+| Part 2.2 | Последовательный apply | ✅ |
+| Part 2.3 | get/describe | ✅ |
+| Part 2.4 | base64-декодирование секрета | ✅ |
+| Part 2.5 | Логи | ✅ |
+| Part 2.6 | Туннели gateway/session | ✅ |
+| Part 2.7 | Postman/newman тесты (5/5 ✓) | ✅ |
+| Part 2.8 | Dashboard (6 категорий скриншотов) | ✅ |
+| Part 2.9 | Стратегии Recreate + RollingUpdate | ✅ |
+
+## Что осталось — финализация
+
+### 1. Прибрать в репозитории
+
+```bash
+# Удалить лишний файл
+rm "src/k8s/01-configmap copy.yaml"
+
+# Проверка структуры
+tree src/k8s/
+```
+
+Должно быть:
+```
+src/k8s/
+├── 01-configmap.yaml
+├── 02-secrets.yaml
+├── 03-postgres.yaml через 11-gateway-service.yaml
+└── strategies/
+    ├── 09-loyalty-recreate.yaml
+    └── 09-loyalty-rolling.yaml
+```
+
+### 2. Завершить REPORT.MD
+
+Добавь финал — заголовок, оглавление если хочешь, и подпись.
+
+### 3. Git commit + push
+
+```bash
+cd ~/kubernetes-manifest-deployment
+
+git status
+git add .
+git commit -m "DO_H_10: Basic Kubernetes — completed"
+
+# Убедись что ты в ветке develop (требование задания)
+git branch
+# Если на main — переключись:
+# git checkout -b develop  (если ветка не создана)
+# git checkout develop     (если создана)
+
+git push origin develop
+```
+
+### 4. Дополнительно — может пригодиться для P2P защиты
+
+Перечитай быстро `materials/01-kubernetes_rus.md` и `02-deployments_rus.md` — там вопросы которые могут задать пиры. Особенно важно знать:
+- разницу ConfigMap vs Secret
+- что такое Service и почему он отличается от Pod
+- что делает `kubectl describe`
+- зачем нужны разные стратегии развертывания
+- как работает RollingUpdate с `maxSurge` и `maxUnavailable`
+
+---
+
+Поздравляю с выполнением — серьёзный проект! Если будут проблемы с git push, защитой, или захочешь подготовиться к P2P — пиши.
 
 
 
