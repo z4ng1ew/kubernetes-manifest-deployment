@@ -1012,12 +1012,26 @@ session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP     
 ![alt text](<img/image copy 38.png>)
 
 
+**Все 9 строк со значением REPLICAS=1**
 
 
 
 
 
 
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get deployments -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas
+NAME              REPLICAS
+booking-service   1
+gateway-service   1
+hotel-service     1
+loyalty-service   1
+payment-service   1
+postgres          1
+rabbitmq          1
+report-service    1
+session-service   1
+```
 
 
 
@@ -1053,7 +1067,78 @@ session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP     
 
 2. Запустить приложение путем последовательного применения манифестов командой `kubectl apply -f <манифест>.yaml`.
 
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 26.png>)
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/05-session-service.yaml
+deployment.apps/session-service created
+service/session-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/06-hotel-service.yaml
+deployment.apps/hotel-service created
+service/hotel-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/07-booking-service.yaml
+deployment.apps/booking-service created
+service/booking-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/08-payment-service.yaml
+deployment.apps/payment-service created
+service/payment-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/09-loyalty-service.yaml
+deployment.apps/loyalty-service created
+service/loyalty-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/10-report-service.yaml
+deployment.apps/report-service created
+service/report-service created
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/11-gateway-service.yaml
+deployment.apps/gateway-service created
+service/gateway-service created
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 3. Проверить статус созданных объектов (секреты, конфигурационная карта, поды и сервисы) в кластере с помощью команд `kubectl get <тип_объекта> <имя_объекта>` и `kubectl describe <тип_объекта> <имя_объекта>`. Результат отобразить в отчете.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 4. Проверить наличие правильных значений секретов, применив, например, команду `kubectl get secret my-secret -o jsonpath='{.data.password}' | base64 --decode` для декодирования секрета.
 
@@ -1267,36 +1352,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-
-
-
-![alt text](<img/image copy 26.png>)
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/05-session-service.yaml
-deployment.apps/session-service created
-service/session-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/06-hotel-service.yaml
-deployment.apps/hotel-service created
-service/hotel-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/07-booking-service.yaml
-deployment.apps/booking-service created
-service/booking-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/08-payment-service.yaml
-deployment.apps/payment-service created
-service/payment-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/09-loyalty-service.yaml
-deployment.apps/loyalty-service created
-service/loyalty-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/10-report-service.yaml
-deployment.apps/report-service created
-service/report-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/11-gateway-service.yaml
-deployment.apps/gateway-service created
-service/gateway-service created
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
 
 
 
