@@ -2194,6 +2194,16 @@ minikube dashboard
 
 
 
+
+![alt text](<img/image copy 75.png>)
+
+
+
+
+
+
+
+
 ## 8.5. ConfigMap
 
 ![ConfigMap](img/dashboard-configmap.png)
