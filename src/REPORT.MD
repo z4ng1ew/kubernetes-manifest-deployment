@@ -951,31 +951,6 @@ session-service   1
 ![alt text](<img/image copy 26.png>)
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/05-session-service.yaml
-deployment.apps/session-service created
-service/session-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/06-hotel-service.yaml
-deployment.apps/hotel-service created
-service/hotel-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/07-booking-service.yaml
-deployment.apps/booking-service created
-service/booking-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/08-payment-service.yaml
-deployment.apps/payment-service created
-service/payment-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/09-loyalty-service.yaml
-deployment.apps/loyalty-service created
-service/loyalty-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/10-report-service.yaml
-deployment.apps/report-service created
-service/report-service created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/11-gateway-service.yaml
-deployment.apps/gateway-service created
-service/gateway-service created
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
 
 
 
@@ -1003,55 +978,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get all
-NAME                                   READY   STATUS    RESTARTS   AGE
-pod/booking-service-6db4557dd9-fvm5w   1/1     Running   0          21h
-pod/gateway-service-85788889bc-ns8ht   1/1     Running   0          21h
-pod/hotel-service-76cd4f799-8q5bs      1/1     Running   0          21h
-pod/loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          21h
-pod/payment-service-74b69df5df-tncgd   1/1     Running   0          21h
-pod/postgres-54b5c94c4c-ts52f          1/1     Running   0          21h
-pod/rabbitmq-746df59b5c-xjg26          1/1     Running   0          21h
-pod/report-service-684989fdcf-7hjbx    1/1     Running   0          21h
-pod/session-service-5cfcc4db9-448hm    1/1     Running   0          21h
-
-NAME                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
-service/booking-service   ClusterIP   10.98.24.93      <none>        8083/TCP             21h
-service/gateway-service   NodePort    10.105.174.71    <none>        8087:32003/TCP       21h
-service/hotel-service     ClusterIP   10.98.139.148    <none>        8082/TCP             21h
-service/kubernetes        ClusterIP   10.96.0.1        <none>        443/TCP              22h
-service/loyalty-service   ClusterIP   10.101.26.223    <none>        8085/TCP             21h
-service/payment-service   ClusterIP   10.97.72.30      <none>        8084/TCP             21h
-service/postgres          ClusterIP   10.98.27.86      <none>        5432/TCP             21h
-service/rabbitmq          ClusterIP   10.98.207.200    <none>        5672/TCP,15672/TCP   21h
-service/report-service    ClusterIP   10.107.193.152   <none>        8086/TCP             21h
-service/session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP       21h
-
-NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/booking-service   1/1     1            1           21h
-deployment.apps/gateway-service   1/1     1            1           21h
-deployment.apps/hotel-service     1/1     1            1           21h
-deployment.apps/loyalty-service   1/1     1            1           21h
-deployment.apps/payment-service   1/1     1            1           21h
-deployment.apps/postgres          1/1     1            1           21h
-deployment.apps/rabbitmq          1/1     1            1           21h
-deployment.apps/report-service    1/1     1            1           21h
-deployment.apps/session-service   1/1     1            1           21h
-
-NAME                                         DESIRED   CURRENT   READY   AGE
-replicaset.apps/booking-service-6db4557dd9   1         1         1       21h
-replicaset.apps/gateway-service-85788889bc   1         1         1       21h
-replicaset.apps/hotel-service-76cd4f799      1         1         1       21h
-replicaset.apps/loyalty-service-5bcdbd4594   1         1         1       21h
-replicaset.apps/payment-service-74b69df5df   1         1         1       21h
-replicaset.apps/postgres-54b5c94c4c          1         1         1       21h
-replicaset.apps/rabbitmq-746df59b5c          1         1         1       21h
-replicaset.apps/report-service-684989fdcf    1         1         1       21h
-replicaset.apps/session-service-5cfcc4db9    1         1         1       21h
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
 
 
 
@@ -1066,126 +992,11 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe pod booking-service-6db4557dd9-fvm5w
-Name:             booking-service-6db4557dd9-fvm5w
-Namespace:        default
-Priority:         0
-Service Account:  default
-Node:             minikube/192.168.49.2
-Start Time:       Mon, 18 May 2026 13:23:00 +0300
-Labels:           app=booking-service
-                  pod-template-hash=6db4557dd9
-Annotations:      <none>
-Status:           Running
-IP:               10.244.0.7
-IPs:
-  IP:           10.244.0.7
-Controlled By:  ReplicaSet/booking-service-6db4557dd9
-Containers:
-  booking-service:
-    Container ID:   docker://fe20c44364d446dd03510dcd29bb5ae318faea9627f18ba3c7a864d180fd07ea
-    Image:          src-booking-service:latest
-    Image ID:       docker://sha256:ef69d350f34904a0ee58db241b2bba79359001a9818c0b9c3a0731b6d9564eb7
-    Port:           8083/TCP
-    Host Port:      0/TCP
-    State:          Running
-      Started:      Mon, 18 May 2026 13:23:00 +0300
-    Ready:          True
-    Restart Count:  0
-    Environment:
-      POSTGRES_HOST:         <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
-      POSTGRES_PORT:         <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
-      POSTGRES_DB:           reservations_db
-      POSTGRES_USER:         <set to the key 'POSTGRES_USER' in secret 'app-secrets'>            Optional: false
-      POSTGRES_PASSWORD:     <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>        Optional: false
-      RABBIT_MQ_HOST:        <set to the key 'RABBIT_MQ_HOST' of config map 'app-config'>        Optional: false
-      RABBIT_MQ_PORT:        <set to the key 'RABBIT_MQ_PORT' of config map 'app-config'>        Optional: false
-      RABBIT_MQ_QUEUE_NAME:  <set to the key 'RABBIT_MQ_QUEUE_NAME' of config map 'app-config'>  Optional: false
-      RABBIT_MQ_EXCHANGE:    <set to the key 'RABBIT_MQ_EXCHANGE' of config map 'app-config'>    Optional: false
-      RABBIT_MQ_USER:        <set to the key 'RABBIT_MQ_USER' in secret 'app-secrets'>           Optional: false
-      RABBIT_MQ_PASSWORD:    <set to the key 'RABBIT_MQ_PASSWORD' in secret 'app-secrets'>       Optional: false
-      HOTEL_SERVICE_HOST:    <set to the key 'HOTEL_SERVICE_HOST' of config map 'app-config'>    Optional: false
-      HOTEL_SERVICE_PORT:    <set to the key 'HOTEL_SERVICE_PORT' of config map 'app-config'>    Optional: false
-      PAYMENT_SERVICE_HOST:  <set to the key 'PAYMENT_SERVICE_HOST' of config map 'app-config'>  Optional: false
-      PAYMENT_SERVICE_PORT:  <set to the key 'PAYMENT_SERVICE_PORT' of config map 'app-config'>  Optional: false
-      LOYALTY_SERVICE_HOST:  <set to the key 'LOYALTY_SERVICE_HOST' of config map 'app-config'>  Optional: false
-      LOYALTY_SERVICE_PORT:  <set to the key 'LOYALTY_SERVICE_PORT' of config map 'app-config'>  Optional: false
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v658l (ro)
-Conditions:
-  Type                        Status
-  PodReadyToStartContainers   True 
-  Initialized                 True 
-  Ready                       True 
-  ContainersReady             True 
-  PodScheduled                True 
-Volumes:
-  kube-api-access-v658l:
-    Type:                    Projected (a volume that contains injected data from multiple sources)
-    TokenExpirationSeconds:  3607
-    ConfigMapName:           kube-root-ca.crt
-    Optional:                false
-    DownwardAPI:             true
-QoS Class:                   BestEffort
-Node-Selectors:              <none>
-Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
-                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
-Events:                      <none>
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
-
-
-
 
 
 
 ![alt text](<img/image copy 43.png>)
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment gateway-service
-Name:                   gateway-service
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:23:31 +0300
-Labels:                 app=gateway-service
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=gateway-service
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=gateway-service
-  Containers:
-   gateway-service:
-    Image:      src-gateway-service:latest
-    Port:       8087/TCP
-    Host Port:  0/TCP
-    Environment:
-      SESSION_SERVICE_HOST:  <set to the key 'SESSION_SERVICE_HOST' of config map 'app-config'>  Optional: false
-      SESSION_SERVICE_PORT:  <set to the key 'SESSION_SERVICE_PORT' of config map 'app-config'>  Optional: false
-      HOTEL_SERVICE_HOST:    <set to the key 'HOTEL_SERVICE_HOST' of config map 'app-config'>    Optional: false
-      HOTEL_SERVICE_PORT:    <set to the key 'HOTEL_SERVICE_PORT' of config map 'app-config'>    Optional: false
-      BOOKING_SERVICE_HOST:  <set to the key 'BOOKING_SERVICE_HOST' of config map 'app-config'>  Optional: false
-      BOOKING_SERVICE_PORT:  <set to the key 'BOOKING_SERVICE_PORT' of config map 'app-config'>  Optional: false
-      LOYALTY_SERVICE_HOST:  <set to the key 'LOYALTY_SERVICE_HOST' of config map 'app-config'>  Optional: false
-      LOYALTY_SERVICE_PORT:  <set to the key 'LOYALTY_SERVICE_PORT' of config map 'app-config'>  Optional: false
-      REPORT_SERVICE_HOST:   <set to the key 'REPORT_SERVICE_HOST' of config map 'app-config'>   Optional: false
-      REPORT_SERVICE_PORT:   <set to the key 'REPORT_SERVICE_PORT' of config map 'app-config'>   Optional: false
-    Mounts:                  <none>
-  Volumes:                   <none>
-  Node-Selectors:            <none>
-  Tolerations:               <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   gateway-service-85788889bc (1/1 replicas created)
-Events:          <none>
-```
 
 
 
@@ -1203,48 +1014,6 @@ Events:          <none>
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment hotel-service
-Name:                   hotel-service
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:22:53 +0300
-Labels:                 app=hotel-service
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=hotel-service
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=hotel-service
-  Containers:
-   hotel-service:
-    Image:      src-hotel-service:latest
-    Port:       8082/TCP
-    Host Port:  0/TCP
-    Environment:
-      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
-      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
-      POSTGRES_DB:        hotels_db
-      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
-      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
-    Mounts:               <none>
-  Volumes:                <none>
-  Node-Selectors:         <none>
-  Tolerations:            <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   hotel-service-76cd4f799 (1/1 replicas created)
-Events:          <none>
-```
-
-
-
-
 
 
 
@@ -1257,44 +1026,6 @@ Events:          <none>
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment loyalty-service
-Name:                   loyalty-service
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:23:17 +0300
-Labels:                 app=loyalty-service
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=loyalty-service
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=loyalty-service
-  Containers:
-   loyalty-service:
-    Image:      src-loyalty-service:latest
-    Port:       8085/TCP
-    Host Port:  0/TCP
-    Environment:
-      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
-      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
-      POSTGRES_DB:        balances_db
-      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
-      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
-    Mounts:               <none>
-  Volumes:                <none>
-  Node-Selectors:         <none>
-  Tolerations:            <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   loyalty-service-5bcdbd4594 (1/1 replicas created)
-Events:          <none>
-```
 
 
 
@@ -1323,48 +1054,6 @@ Events:          <none>
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment payment-service
-Name:                   payment-service
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:23:09 +0300
-Labels:                 app=payment-service
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=payment-service
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=payment-service
-  Containers:
-   payment-service:
-    Image:      src-payment-service:latest
-    Port:       8084/TCP
-    Host Port:  0/TCP
-    Environment:
-      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
-      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
-      POSTGRES_DB:        payments_db
-      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
-      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
-    Mounts:               <none>
-  Volumes:                <none>
-  Node-Selectors:         <none>
-  Tolerations:            <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   payment-service-74b69df5df (1/1 replicas created)
-Events:          <none>
-```
-
-
-
-
 
 
 
@@ -1386,46 +1075,6 @@ Events:          <none>
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment postgres
-Name:                   postgres
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:20:59 +0300
-Labels:                 app=postgres
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=postgres
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=postgres
-  Containers:
-   postgres:
-    Image:      src-postgres:latest
-    Port:       5432/TCP
-    Host Port:  0/TCP
-    Environment:
-      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
-      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
-      POSTGRES_DB:        postgres
-    Mounts:               <none>
-  Volumes:                <none>
-  Node-Selectors:         <none>
-  Tolerations:            <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   postgres-54b5c94c4c (1/1 replicas created)
-Events:          <none>
-```
-
-
-
-
 
 
 
@@ -1434,46 +1083,7 @@ Events:          <none>
 
 ![alt text](<img/image copy 48.png>)
 
-
-
-
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment rabbitmq
-Name:                   rabbitmq
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:21:06 +0300
-Labels:                 app=rabbitmq
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=rabbitmq
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=rabbitmq
-  Containers:
-   rabbitmq:
-    Image:       rabbitmq:3.12-management-alpine
-    Ports:       5672/TCP, 15672/TCP
-    Host Ports:  0/TCP, 0/TCP
-    Environment:
-      RABBITMQ_DEFAULT_USER:  <set to the key 'RABBIT_MQ_USER' in secret 'app-secrets'>      Optional: false
-      RABBITMQ_DEFAULT_PASS:  <set to the key 'RABBIT_MQ_PASSWORD' in secret 'app-secrets'>  Optional: false
-    Mounts:                   <none>
-  Volumes:                    <none>
-  Node-Selectors:             <none>
-  Tolerations:                <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   rabbitmq-746df59b5c (1/1 replicas created)
-Events:          <none>
-```
+ **rabbitmq**
 
 
 
@@ -1495,55 +1105,6 @@ Events:          <none>
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment report-service
-Name:                   report-service
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:23:23 +0300
-Labels:                 app=report-service
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=report-service
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=report-service
-  Containers:
-   report-service:
-    Image:      src-report-service:latest
-    Port:       8086/TCP
-    Host Port:  0/TCP
-    Environment:
-      POSTGRES_HOST:         <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
-      POSTGRES_PORT:         <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
-      POSTGRES_DB:           statistics_db
-      POSTGRES_USER:         <set to the key 'POSTGRES_USER' in secret 'app-secrets'>            Optional: false
-      POSTGRES_PASSWORD:     <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>        Optional: false
-      RABBIT_MQ_HOST:        <set to the key 'RABBIT_MQ_HOST' of config map 'app-config'>        Optional: false
-      RABBIT_MQ_PORT:        <set to the key 'RABBIT_MQ_PORT' of config map 'app-config'>        Optional: false
-      RABBIT_MQ_QUEUE_NAME:  <set to the key 'RABBIT_MQ_QUEUE_NAME' of config map 'app-config'>  Optional: false
-      RABBIT_MQ_EXCHANGE:    <set to the key 'RABBIT_MQ_EXCHANGE' of config map 'app-config'>    Optional: false
-      RABBIT_MQ_USER:        <set to the key 'RABBIT_MQ_USER' in secret 'app-secrets'>           Optional: false
-      RABBIT_MQ_PASSWORD:    <set to the key 'RABBIT_MQ_PASSWORD' in secret 'app-secrets'>       Optional: false
-    Mounts:                  <none>
-  Volumes:                   <none>
-  Node-Selectors:            <none>
-  Tolerations:               <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   report-service-684989fdcf (1/1 replicas created)
-Events:          <none>
-```
-
-
-
-
-
 
 
 
@@ -1555,49 +1116,6 @@ Events:          <none>
 
 
 ![alt text](<img/image copy 50.png>)
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment session-service
-Name:                   session-service
-Namespace:              default
-CreationTimestamp:      Mon, 18 May 2026 13:22:48 +0300
-Labels:                 app=session-service
-Annotations:            deployment.kubernetes.io/revision: 1
-Selector:               app=session-service
-Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:  app=session-service
-  Containers:
-   session-service:
-    Image:      src-session-service:latest
-    Port:       8081/TCP
-    Host Port:  0/TCP
-    Environment:
-      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
-      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
-      POSTGRES_DB:        users_db
-      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
-      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
-    Mounts:               <none>
-  Volumes:                <none>
-  Node-Selectors:         <none>
-  Tolerations:            <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-  Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   session-service-5cfcc4db9 (1/1 replicas created)
-Events:          <none>
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
-
 
 
 
@@ -1636,35 +1154,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod booking-service-6db4557dd9-fvm5w
-NAME                               READY   STATUS    RESTARTS   AGE
-booking-service-6db4557dd9-fvm5w   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod gateway-service-85788889bc-ns8ht
-NAME                               READY   STATUS    RESTARTS   AGE
-gateway-service-85788889bc-ns8ht   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod loyalty-service-5bcdbd4594-7slp4
-NAME                               READY   STATUS    RESTARTS   AGE
-loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod payment-service-74b69df5df-tncgd
-NAME                               READY   STATUS    RESTARTS   AGE
-payment-service-74b69df5df-tncgd   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod postgres-54b5c94c4c-ts52f
-NAME                        READY   STATUS    RESTARTS   AGE
-postgres-54b5c94c4c-ts52f   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod rabbitmq-746df59b5c-xjg26
-NAME                        READY   STATUS    RESTARTS   AGE
-rabbitmq-746df59b5c-xjg26   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod report-service-684989fdcf-7hjbx
-NAME                              READY   STATUS    RESTARTS   AGE
-report-service-684989fdcf-7hjbx   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pod session-service-5cfcc4db9-448hm
-NAME                              READY   STATUS    RESTARTS   AGE
-session-service-5cfcc4db9-448hm   1/1     Running   0          22h
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
 
 
 
@@ -1723,20 +1212,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 **Команда дословно из задания**
 
 **Дополнительно — другие ключи для полноты**
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get secret app-secrets -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 --decode
-echo  
-postgres
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get secret app-secrets -o jsonpath='{.data.POSTGRES_USER}' | base64 --decode
-echo
-postgres
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get secret app-secrets -o jsonpath='{.data.GATEWAY_SERVICE_UUID}' | base64 --decode
-echo
-b51ceda2-bfa5-11eb-8529-0242ac130003
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
 
 
 
@@ -1870,15 +1345,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 ![alt text](<img/image copy 65.png>)
 
 
-```bash
-$ minikube service gateway-service
-┌───────────┬─────────────────┬─────────────┬───────────────────────────┐
-│ NAMESPACE │      NAME       │ TARGET PORT │            URL            │
-├───────────┼─────────────────┼─────────────┼───────────────────────────┤
-│ default   │ gateway-service │ 8087        │ http://192.168.49.2:32003 │
-└───────────┴─────────────────┴─────────────┴───────────────────────────┘
-```
-
 
 
 Браузер показывает Whitelabel Error Page от Spring Boot — это стандартная страница 
@@ -1936,58 +1402,6 @@ $ minikube service gateway-service
 ![alt text](<img/image copy 68.png>)
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ newman run src/application_tests.postman_collection.json \
-  --env-var "API_HOST=192.168.49.2" \
-  --env-var "USERS_PORT=32562" \
-  --env-var "GATEWAY_PORT=32003" \
-  --env-var "BASIC=Basic VXNlcjpxd2VydHk=" \
-  --env-var "HOTEL_UID=9d05ba36-bf8d-11eb-8529-0242ac130003"
-newman
-
-Application Tests (k8s)
-
-→ Login User
-  GET http://192.168.49.2:32562/api/v1/auth/authorize [200 OK, 912B, 416ms]
-  ✓  Login as a regular user
-
-→ Get Hotels
-  GET http://192.168.49.2:32003/api/v1/gateway/hotels [200 OK, 904B, 662ms]
-  ✓  Get hotels info
-
-→ Get Hotel
-  GET http://192.168.49.2:32003/api/v1/gateway/hotels/9d05ba36-bf8d-11eb-8529-0242ac130003 [200 OK, 590B, 68ms]
-  ✓  Get hotel info
-
-→ Book Hotel
-  POST http://192.168.49.2:32003/api/v1/gateway/booking [201 Created, 399B, 2.4s]
-  ✓  Book hotel
-
-→ Get User's Loyalty Balance
-  GET http://192.168.49.2:32003/api/v1/gateway/loyalty [200 OK, 465B, 71ms]
-  ✓  Get user's loyalty balance
-
-┌─────────────────────────┬────────────────────┬───────────────────┐
-│                         │           executed │            failed │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│              iterations │                  1 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│                requests │                  5 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│            test-scripts │                  5 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│      prerequest-scripts │                  0 │                 0 │
-├─────────────────────────┼────────────────────┼───────────────────┤
-│              assertions │                  5 │                 0 │
-├─────────────────────────┴────────────────────┴───────────────────┤
-│ total run duration: 3.7s                                         │
-├──────────────────────────────────────────────────────────────────┤
-│ total data received: 654B (approx)                               │
-├──────────────────────────────────────────────────────────────────┤
-│ average response time: 735ms [min: 68ms, max: 2.4s, s.d.: 890ms] │
-└──────────────────────────────────────────────────────────────────┘
-s@Vivo:~/kubernetes-manifest-deployment$
-```
 
 
 
@@ -2205,9 +1619,94 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 
 
-## 9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
-   - пересоздание (recreate),
-   - последовательное обновление (rolling).
+## 9. Обновил приложение (добавив новую зависимость в pom-файл) 
+
+![alt text](<img/image copy 90.png>)
+
+- Apache Commons Lang3 — это библиотека Java с утилитами для строк, чисел, дат. Никакого кода для её использования писать не нужно — добавление в pom.xml уже считается «новой зависимостью» (требование задания).
+
+- Не конфликтует со Spring Boot 2.3.3.
+
+- Лёгкая (~500 КБ).
+
+
+
+
+## Пересобрал его со следующими стратегиями развертывания (замерил время переразвертывания приложения для каждого случая и отметил результаты в отчете):
+
+![alt text](<img/image copy 91.png>)
+
+**успешная сборка за 2m41,650s**
+
+
+![alt text](<img/image copy 92.png>)
+
+![alt text](<img/image copy 93.png>)
+
+**Загрузка v2 в minikube**
+
+Результат:
+
+ 1) src-loyalty-service:v2 создан
+ 2) Загружен в minikube (видны обе версии: latest и v2)
+ 3) Размер вырос с 198 → 199 МБ (+1 МБ — это добавленный commons-lang3.jar ~580 КБ + накладные)
+ 4) Время сборки в 2:41 включает в основном dependency:go-offline (132 сек качал зависимости первый раз) и сборку (9 сек) — это говорит о том, что Maven кэш у тебя теперь прогрет
+
+
+
+
+
+
+
+
+
+
+
+## Замер стратегий
+
+
+
+Терминал 1 — «watch» (наблюдатель)
+
+![alt text](<img/image copy 94.png>)
+
+
+
+Терминал 2 — «replay» (для повторных запусков с разной стратегией)
+
+
+
+Терминал 3 — «metrics» (опционально, для дополнения) -  мониторинг ресурсов:
+
+![alt text](<img/image copy 95.png>)
+
+
+
+
+
+## Замер 1
+
+
+шаг № 1.1 - Замер 1: Recreate
+
+
+
+
+
+
+
+
+
+
+
+
+
+##   - пересоздание (recreate),
+
+
+
+
+##   - последовательное обновление (rolling).
 
 
 
