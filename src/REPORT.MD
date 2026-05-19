@@ -518,7 +518,7 @@ Create an order
 
 ## 1. Написал собственные yml-файлы манифестов для приложения из первого проекта (`/src/services`), реализующие следующее:
 
-##   1.1 карту конфигурации со значениями хостов БД и сервисов,
+##   1.1 карта конфигурации со значениями хостов БД и сервисов,
 
 
 
@@ -528,53 +528,13 @@ Create an order
 ![alt text](<img/image copy 29.png>)
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ cat src/k8s/01-configmap.yaml
-# ConfigMap — несекретные настройки.
-# Хосты внутри Kubernetes — это имена Service-объектов (внутренний DNS).
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-data:
-  # PostgreSQL
-  POSTGRES_HOST: postgres
-  POSTGRES_PORT: "5432"
-
-  # RabbitMQ
-  RABBIT_MQ_HOST: rabbitmq
-  RABBIT_MQ_PORT: "5672"
-  RABBIT_MQ_QUEUE_NAME: booking_statistics_queue
-  RABBIT_MQ_EXCHANGE: booking_statistics_exchange
-
-  # Хосты сервисов = имена Service-объектов
-  SESSION_SERVICE_HOST: session-service
-  SESSION_SERVICE_PORT: "8081"
-  HOTEL_SERVICE_HOST: hotel-service
-  HOTEL_SERVICE_PORT: "8082"
-  BOOKING_SERVICE_HOST: booking-service
-  BOOKING_SERVICE_PORT: "8083"
-  PAYMENT_SERVICE_HOST: payment-service
-  PAYMENT_SERVICE_PORT: "8084"
-  LOYALTY_SERVICE_HOST: loyalty-service
-  LOYALTY_SERVICE_PORT: "8085"
-  REPORT_SERVICE_HOST: report-service
-  REPORT_SERVICE_PORT: "8086"
-```
-
 
 
 
 
 ![alt text](<img/image copy 30.png>)
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/01-configmap.yaml
-configmap/app-config unchanged
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get configmap app-config
-NAME         DATA   AGE
-app-config   18     25m
-```
+
 
 **Доказательство что ConfigMap создан**
 
@@ -586,95 +546,6 @@ app-config   18     25m
 **видны все ключи и значения**
 
 **все ключи (POSTGRES_HOST, RABBIT_MQ_HOST, имена сервисов)**
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe configmap app-config
-Name:         app-config
-Namespace:    default
-Labels:       <none>
-Annotations:  <none>
-
-Data
-====
-BOOKING_SERVICE_HOST:
-----
-booking-service
-
-BOOKING_SERVICE_PORT:
-----
-8083
-
-HOTEL_SERVICE_HOST:
-----
-hotel-service
-
-HOTEL_SERVICE_PORT:
-----
-8082
-
-LOYALTY_SERVICE_HOST:
-----
-loyalty-service
-
-LOYALTY_SERVICE_PORT:
-----
-8085
-
-PAYMENT_SERVICE_HOST:
-----
-payment-service
-
-PAYMENT_SERVICE_PORT:
-----
-8084
-
-POSTGRES_HOST:
-----
-postgres
-
-POSTGRES_PORT:
-----
-5432
-
-RABBIT_MQ_EXCHANGE:
-----
-booking_statistics_exchange
-
-RABBIT_MQ_HOST:
-----
-rabbitmq
-
-RABBIT_MQ_PORT:
-----
-5672
-
-RABBIT_MQ_QUEUE_NAME:
-----
-booking_statistics_queue
-
-REPORT_SERVICE_HOST:
-----
-report-service
-
-REPORT_SERVICE_PORT:
-----
-8086
-
-SESSION_SERVICE_HOST:
-----
-session-service
-
-SESSION_SERVICE_PORT:
-----
-8081
-
-
-BinaryData
-====
-
-Events:  <none>
-```
-
 
 
 
@@ -693,30 +564,6 @@ Events:  <none>
 **Содержимое файла - 02-secrets.yaml**
 
 
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ cat src/k8s/02-secrets.yaml
-# Secret — секреты (пароли, ключи). Значения в base64 (echo -n 'значение' | base64).
-# Декодирование: kubectl get secret app-secrets -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 --decode
-apiVersion: v1
-kind: Secret
-metadata:
-  name: app-secrets
-type: Opaque
-data:
-  # postgres — пароль вшит в твой Dockerfile postgres-образа
-  POSTGRES_USER: cG9zdGdyZXM=
-  # postgres
-  POSTGRES_PASSWORD: cG9zdGdyZXM=
-  # guest — стандартный пользователь rabbitmq
-  RABBIT_MQ_USER: Z3Vlc3Q=
-  # guest
-  RABBIT_MQ_PASSWORD: Z3Vlc3Q=
-  # b51ceda2-bfa5-11eb-8529-0242ac130003 — UUID gateway-сервиса (межсервисная авторизация)
-  GATEWAY_SERVICE_UUID: YjUxY2VkYTItYmZhNS0xMWViLTg1MjktMDI0MmFjMTMwMDAz
-  # 911ccb4c-c055-11eb-8529-0242ac130003 — UUID booking-сервиса
-  BOOKING_SERVICE_UUID: OTExY2NiNGMtYzA1NS0xMWViLTg1MjktMDI0MmFjMTMwMDAz
-```
 
 
 
@@ -756,6 +603,17 @@ data:
 
 
 
+
+
+
+
+
+
+![alt text](<img/image copy 25.png>)
+
+
+
+**все 11 файлов на месте**
 
 
 
@@ -951,6 +809,55 @@ session-service   1
 ![alt text](<img/image copy 26.png>)
 
 
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 27.png>)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 28.png>)
+
+
+**minikube dashboard. Все 9 сервисов запущены**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 24.png>)
+
+
+
+**Загружаем все 7 сервисов + postgres + rabbitmq в minikube**
 
 
 
@@ -1711,35 +1618,42 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 
 
+В **терминале 2**:
+
+![alt text](<img/image copy 97.png>)
 
 
 
 
 
 
-**В терминале 1 (watch) увидишь как старый под умирает и появляется новый. Подожди пока новый под станет 1/1 Running.**
+**В терминале 1 (watch) ВИДИМ как старый под умирает и появляется новый. Подожди пока новый под станет 1/1 Running.**
+
+**Терминал 1 (watch): вся история событий — видно последовательность Terminating → Pending → Running**
 
 ![alt text](<img/image copy 98.png>)
 
 
-**Терминал 1 (watch): вся история событий — видно последовательность Terminating → Pending → Running**
-
-
-
-![alt text](<img/image copy 97.png>)
-
-**Терминал 2 (time): команда + real 0m1,368s**
 
 
 
 
+```
+loyalty-service-5bcdbd4594-7slp4   Running       ← старый под
+loyalty-service-5bcdbd4594-7slp4   Terminating   ← старый начал умирать
+loyalty-service-5bcdbd4594-7slp4   Error         ← старый умер
+loyalty-service-68fc78958f-v8g96   Pending       ← НОВЫЙ только теперь создаётся
+loyalty-service-68fc78958f-v8g96   ContainerCreating
+loyalty-service-68fc78958f-v8g96   Running       ← новый запустился
+```
 
 
 
 
+Это наглядное доказательство что стратегия Recreate работает по принципу «убей старого → создай нового».
 
 
-
+> Терминал 1 (watch): вся история событий — старый под (5bcdbd4594-7slp4) переходит в Terminating, и только после его завершения создаётся новый (68fc78958f-v8g96). Это поведение Recreate — есть кратковременный downtime между этими событиями.
 
 
 
@@ -1779,6 +1693,7 @@ Secret `app-secrets` содержит 6 секретных ключей:
 **В терминале 2:**
 
 Меняет стратегию Recreate → RollingUpdate
+
 Откатывает образ обратно :v2 → :latest (потому что в манифесте написано latest)
 
 
@@ -1806,9 +1721,12 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 ![alt text](<img/image copy 103.png>)
 
+**В терминале 2**
+
 
 ![alt text](<img/image copy 104.png>)
 
+**Терминал 1**
 
 
  - Rolling отработал — и watch показывает Идеальную картину
@@ -1921,84 +1839,30 @@ loyalty-service-5bcdbd4594-xmd5p   1/1   Terminating 0   2m20s  ← старый
 ожидания готовности нового пода параллельно со старым (1.591 сек vs 1.368 сек). 
 При большем количестве реплик эта разница нивелируется преимуществом нулевого 
 простоя.
-````
+
 
 ---
 
-# 🏁 Задание DO_H_10 выполнено
+#  Задание DO_H_10 выполнено
 
 Все 9 пунктов закрыты:
 
-| # | Пункт | Статус |
-|---|---|---|
-| Part 1.1-5 | Готовый манифест (apache/catalog/customer/order) | ✅ |
-| Part 2.1 | ConfigMap + Secret + 9 Deployment'ов | ✅ |
-| Part 2.2 | Последовательный apply | ✅ |
-| Part 2.3 | get/describe | ✅ |
-| Part 2.4 | base64-декодирование секрета | ✅ |
-| Part 2.5 | Логи | ✅ |
-| Part 2.6 | Туннели gateway/session | ✅ |
-| Part 2.7 | Postman/newman тесты (5/5 ✓) | ✅ |
-| Part 2.8 | Dashboard (6 категорий скриншотов) | ✅ |
-| Part 2.9 | Стратегии Recreate + RollingUpdate | ✅ |
 
-## Что осталось — финализация
 
-### 1. Прибрать в репозитории
 
-```bash
-# Удалить лишний файл
-rm "src/k8s/01-configmap copy.yaml"
 
-# Проверка структуры
-tree src/k8s/
-```
 
-Должно быть:
-```
-src/k8s/
-├── 01-configmap.yaml
-├── 02-secrets.yaml
-├── 03-postgres.yaml через 11-gateway-service.yaml
-└── strategies/
-    ├── 09-loyalty-recreate.yaml
-    └── 09-loyalty-rolling.yaml
-```
 
-### 2. Завершить REPORT.MD
 
-Добавь финал — заголовок, оглавление если хочешь, и подпись.
 
-### 3. Git commit + push
 
-```bash
-cd ~/kubernetes-manifest-deployment
 
-git status
-git add .
-git commit -m "DO_H_10: Basic Kubernetes — completed"
 
-# Убедись что ты в ветке develop (требование задания)
-git branch
-# Если на main — переключись:
-# git checkout -b develop  (если ветка не создана)
-# git checkout develop     (если создана)
 
-git push origin develop
-```
 
-### 4. Дополнительно — может пригодиться для P2P защиты
 
-Перечитай быстро `materials/01-kubernetes_rus.md` и `02-deployments_rus.md` — там вопросы которые могут задать пиры. Особенно важно знать:
-- разницу ConfigMap vs Secret
-- что такое Service и почему он отличается от Pod
-- что делает `kubectl describe`
-- зачем нужны разные стратегии развертывания
-- как работает RollingUpdate с `maxSurge` и `maxUnavailable`
 
----
 
-Поздравляю с выполнением — серьёзный проект! Если будут проблемы с git push, защитой, или захочешь подготовиться к P2P — пиши.
 
 
 
@@ -2078,170 +1942,6 @@ git push origin develop
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-![alt text](<img/image copy 25.png>)
-
-
-
-**все 11 файлов на месте**
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ tree src/k8s/
-src/k8s/
-├── 01-configmap copy.yaml
-├── 01-configmap.yaml
-├── 02-secrets.yaml
-├── 03-postgres.yaml
-├── 04-rabbitmq.yaml
-├── 05-session-service.yaml
-├── 06-hotel-service.yaml
-├── 07-booking-service.yaml
-├── 08-payment-service.yaml
-├── 09-loyalty-service.yaml
-├── 10-report-service.yaml
-└── 11-gateway-service.yaml
-
-1 directory, 12 files
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/01-configmap.yaml
-configmap/app-config created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/02-secrets.yaml
-secret/app-secrets created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/03-postgres.yaml
-deployment.apps/postgres created
-service/postgres created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/k8s/04-rabbitmq.yaml
-deployment.apps/rabbitmq created
-service/rabbitmq created
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods
-NAME                        READY   STATUS    RESTARTS   AGE
-postgres-54b5c94c4c-ts52f   1/1     Running   0          19s
-rabbitmq-746df59b5c-xjg26   1/1     Running   0          12s
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods -w
-NAME                        READY   STATUS    RESTARTS   AGE
-postgres-54b5c94c4c-ts52f   1/1     Running   0          25s
-rabbitmq-746df59b5c-xjg26   1/1     Running   0          18s
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-![alt text](<img/image copy 27.png>)
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods
-NAME                               READY   STATUS    RESTARTS   AGE
-booking-service-6db4557dd9-fvm5w   1/1     Running   0          2m26s
-gateway-service-85788889bc-ns8ht   1/1     Running   0          115s
-hotel-service-76cd4f799-8q5bs      1/1     Running   0          2m33s
-loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          2m9s
-payment-service-74b69df5df-tncgd   1/1     Running   0          2m17s
-postgres-54b5c94c4c-ts52f          1/1     Running   0          4m27s
-rabbitmq-746df59b5c-xjg26          1/1     Running   0          4m20s
-report-service-684989fdcf-7hjbx    1/1     Running   0          2m3s
-session-service-5cfcc4db9-448hm    1/1     Running   0          2m38s
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get services
-NAME              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
-booking-service   ClusterIP   10.98.24.93      <none>        8083/TCP             2m32s
-gateway-service   NodePort    10.105.174.71    <none>        8087:32003/TCP       2m1s
-hotel-service     ClusterIP   10.98.139.148    <none>        8082/TCP             2m39s
-kubernetes        ClusterIP   10.96.0.1        <none>        443/TCP              37m
-loyalty-service   ClusterIP   10.101.26.223    <none>        8085/TCP             2m15s
-payment-service   ClusterIP   10.97.72.30      <none>        8084/TCP             2m23s
-postgres          ClusterIP   10.98.27.86      <none>        5432/TCP             4m33s
-rabbitmq          ClusterIP   10.98.207.200    <none>        5672/TCP,15672/TCP   4m26s
-report-service    ClusterIP   10.107.193.152   <none>        8086/TCP             2m9s
-session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP       2m44s
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 2. Запустить приложение путем последовательного применения манифестов командой `kubectl apply -f <манифест>.yaml`.
-
-
-
-![alt text](<img/image copy 28.png>)
-
-
-**minikube dashboard. Все 9 сервисов запущены**
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-![alt text](<img/image copy 24.png>)
-
-
-
-**Загружаем все 7 сервисов + postgres + rabbitmq в minikube**
-
-```
-for img in src-postgres src-session-service src-hotel-service src-booking-service \
-           src-payment-service src-loyalty-service src-report-service src-gateway-service; do
-  echo "=== Загрузка $img:latest в minikube ==="
-  minikube image load $img:latest
-done
-minikube image load rabbitmq:3.12-management-alpine
-=== Загрузка src-postgres:latest в minikube ===
-=== Загрузка src-session-service:latest в minikube ===
-=== Загрузка src-hotel-service:latest в minikube ===
-=== Загрузка src-booking-service:latest в minikube ===
-=== Загрузка src-payment-service:latest в minikube ===
-=== Загрузка src-loyalty-service:latest в minikube ===
-=== Загрузка src-report-service:latest в minikube ===
-=== Загрузка src-gateway-service:latest в minikube ===
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
 
 
 
