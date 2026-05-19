@@ -2131,19 +2131,12 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-8. Запустить стандартную панель управления Kubernetes с помощью команды `minikube dashboard`. Отобразить в отчете следующую информацию в виде скриншотов с дашборда: 
-
-    текущее состояние узлов кластера, 
-    список запущенных Pod, 
-    загрузка ЦП и память, 
-    логи Pod, 
-    конфигурации и секреты.
-
-
-
-
+## 8. Запустил стандартную панель управления Kubernetes с помощью команды `minikube dashboard`.  Отобразил в отчете информацию в виде скриншотов с дашборда: 
 
 ## 8. Стандартная панель управления Kubernetes
+
+
+![alt text](<img/image copy 85.png>)
 
 Запуск:
 ```bash
@@ -2158,7 +2151,12 @@ minikube dashboard
 Кластер состоит из одного узла `minikube` со статусом Ready.
 
 
+![alt text](<img/image copy 87.png>)
 
+
+![alt text](<img/image copy 88.png>)
+
+![alt text](<img/image copy 89.png>)
 
 
 ## 8.2. Запущенные Pod
@@ -2172,6 +2170,7 @@ minikube dashboard
 
 
 ## 8.3. Метрики CPU и Memory
+
 ![CPU/Memory](<img/image copy 72.png>)
 
 
@@ -2277,7 +2276,7 @@ minikube dashboard
 ![ConfigMap](<img/image copy 76.png>)
 
 
-![alt text](<img/image copy 77.png>)
+
 
 
 Все 15 ключей карты конфигурации.
@@ -2289,11 +2288,17 @@ minikube dashboard
 
 ## 8.6. Secret
 
-![Secret](img/dashboard-secrets.png)
+![Secret](<img/image copy 86.png>)
 
-7 секретных ключей. Значения скрыты — это штатное поведение Kubernetes для объекта Secret.
+Secret `app-secrets` содержит 6 секретных ключей:
+- `POSTGRES_USER` / `POSTGRES_PASSWORD` — учётные данные для PostgreSQL
+- `RABBIT_MQ_USER` / `RABBIT_MQ_PASSWORD` — учётные данные для RabbitMQ
+- `GATEWAY_SERVICE_UUID` / `BOOKING_SERVICE_UUID` — ключи межсервисной авторизации (UUID — Universally Unique Identifier, уникальный идентификатор)
 
-
+По умолчанию dashboard скрывает значения секретных полей (отображается иконка глаза 👁). 
+Нажатие на иконку показывает расшифрованное значение — это та же операция, что и 
+`base64 --decode`, выполняемая на стороне браузера. На скриншоте значения показаны 
+для верификации содержимого.
 
 
 
