@@ -2192,10 +2192,76 @@ minikube dashboard
 
 Видно успешное выполнение init.sql и init-check.sh — все 6 БД созданы.
 
-
+**postgres**
 
 
 ![alt text](<img/image copy 75.png>)
+
+**gateway-service**
+
+
+
+![alt text](<img/image copy 78.png>)
+
+**report-service**
+
+
+
+![alt text](<img/image copy 79.png>)
+
+**booking-service**
+
+
+![alt text](<img/image copy 80.png>)
+
+**hotel-service**
+
+
+
+![alt text](<img/image copy 81.png>)
+
+**loyalty-service**
+
+
+![alt text](<img/image copy 82.png>)
+
+**payment-service**
+
+
+
+![alt text](<img/image copy 83.png>)
+
+**rabbitmq**
+
+
+
+![alt text](<img/image copy 84.png>)
+
+**session-service**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2206,7 +2272,12 @@ minikube dashboard
 
 ## 8.5. ConfigMap
 
-![ConfigMap](img/dashboard-configmap.png)
+
+
+![ConfigMap](<img/image copy 76.png>)
+
+
+![alt text](<img/image copy 77.png>)
 
 
 Все 15 ключей карты конфигурации.
