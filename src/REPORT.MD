@@ -2027,6 +2027,12 @@ $ minikube service gateway-service
 
 
 
+![alt text](<img/image copy 66.png>)
+
+
+![alt text](<img/image copy 67.png>)
+
+
 
 
 
