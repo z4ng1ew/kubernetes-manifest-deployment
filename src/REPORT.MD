@@ -255,143 +255,14 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 
 ![alt text](<img/image copy 19.png>)
 
-```
-Workload Status
-Running: 4
-Deployments
-Running: 4
-Pods
-Running: 4
-Replica Sets
-Deployments
-Name
-Images
-Labels
-Pods
-Created
-apache
-minivozhd/example-apache:latest
-run: apache
-1 / 1
-20 hours ago
-catalog
-minivozhd/example-catalog:latest
-run: catalog
-1 / 1
-20 hours ago
-customer
-minivozhd/example-customers:latest
-run: customer
-1 / 1
-20 hours ago
-order
-minivozhd/example-order:latest
-run: order
-1 / 1
-20 hours ago
-Pods
-Name
-Images
-Labels
-Node
-Status
-Restarts
-CPU Usage (cores)
-Memory Usage (bytes)
-Created
-apache-7f5f9d6b55-vhxqg
-minivozhd/example-apache:latest
-pod-template-hash: 7f5f9d6b55
-run: apache
-minikube
-Running
-2
-1.00m
-27.03Mi
-20 hours ago
-catalog-56d5b6f446-lhg7q
-minivozhd/example-catalog:latest
-pod-template-hash: 56d5b6f446
-run: catalog
-minikube
-Running
-2
-2.00m
-740.20Mi
-20 hours ago
-customer-99d48549d-fjqcc
-minivozhd/example-customers:latest
-pod-template-hash: 99d48549d
-run: customer
-minikube
-Running
-2
-2.00m
-669.83Mi
-20 hours ago
-order-779f66c67f-dtpzb
-minivozhd/example-order:latest
-pod-template-hash: 779f66c67f
-run: order
-minikube
-Running
-2
-2.00m
-642.32Mi
-20 hours ago
-Replica Sets
-Name
-Images
-Labels
-Pods
-Created
-apache-7f5f9d6b55
-minivozhd/example-apache:latest
-pod-template-hash: 7f5f9d6b55
-run: apache
-1 / 1
-20 hours ago
-catalog-56d5b6f446
-minivozhd/example-catalog:latest
-pod-template-hash: 56d5b6f446
-run: catalog
-1 / 1
-20 hours ago
-customer-99d48549d
-minivozhd/example-customers:latest
-pod-template-hash: 99d48549d
-run: customer
-1 / 1
-20 hours ago
-order-779f66c67f
-minivozhd/example-order:latest
-pod-template-hash: 779f66c67f
-run: order
-1 / 1
-20 hours ago 
-```
 
+
+
+
+
+![alt text](<img/image copy 9.png>)
 
 **фиксируем состояние объектов**
-
-```
-(base) s@fedora:~/DO_H_10$ kubectl get pods
-NAME                       READY   STATUS    RESTARTS       AGE
-apache-7f5f9d6b55-vhxqg    1/1     Running   1 (3h4m ago)   18h
-catalog-56d5b6f446-lhg7q   1/1     Running   1 (3h4m ago)   18h
-customer-99d48549d-fjqcc   1/1     Running   1 (3h4m ago)   18h
-order-779f66c67f-dtpzb     1/1     Running   1 (3h4m ago)   18h
-(base) s@fedora:~/DO_H_10$ kubectl get services
-NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
-apache       LoadBalancer   10.101.79.77     <pending>     80:31726/TCP     18h
-catalog      LoadBalancer   10.109.14.125    <pending>     8080:31142/TCP   18h
-customer     LoadBalancer   10.108.72.96     <pending>     8080:31295/TCP   18h
-kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP          18h
-order        LoadBalancer   10.108.101.152   <pending>     8080:30939/TCP   18h
-(base) s@fedora:~/DO_H_10$ 
-```
-
-
 
 
 
@@ -2307,6 +2178,33 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
    - пересоздание (recreate),
    - последовательное обновление (rolling).
@@ -2345,58 +2243,6 @@ Secret `app-secrets` содержит 6 секретных ключей:
 
 
 
-
-
-
-
-## 8.1. Состояние узлов кластера
-Меню: Cluster → Nodes
-Кликни на узел minikube чтобы зайти внутрь — там видно:
-
-статус Ready
-ОС, версия kubelet, kube-proxy
-адреса, CIDR подов
-общие ресурсы (Allocated resources)
-
-📸 2 скриншота:
-
-Общий список узлов (1 узел minikube)
-Детали узла minikube (внутрь)
-
-8.2. Список запущенных Pod
-Меню: Workloads → Pods
-Должны быть видны все 9 подов: postgres, rabbitmq + 7 сервисов. Все READY.
-📸 1 скриншот: общая таблица подов со статусом Running.
-8.3. Метрики ЦП и памяти
-Меню: Workloads → Deployments (или внутри конкретного пода)
-Если metrics-server включён — увидишь графики CPU Usage и Memory Usage сверху на каждом Deployment.
-📸 2 скриншота:
-
-Страница Deployments с графиками вверху (если они уже отрисовались)
-Или зайди в любой Pod (например gateway-service-...) → во вкладке Overview будут детальные графики
-
-⚠️ Если графики так и не появятся за 2-3 минуты — открой Lens, оттуда тоже подойдёт для метрик. Главное чтобы где-то были видны цифры/графики CPU и Memory.
-8.4. Логи Pod
-Меню: `Workloads → Pods → [клик на любой под] → кнопка "Logs" справа сверху (значок страницы с текстом)**
-Лучшие кандидаты для скриншота:
-
-postgres — увидишь вывод твоего init-check.sh («Все 6 баз данных созданы успешно»)
-gateway-service — Spring Boot стартует с красивым ASCII-баннером
-
-📸 1-2 скриншота: окно логов на полном экране для postgres + одного из сервисов.
-8.5. Конфигурации и секреты
-Меню: Config and Storage → Config Maps
-Кликни на app-config — видны все 15 ключей с их значениями.
-Меню: Config and Storage → Secrets
-Кликни на app-secrets — видны 7 ключей. Значения скрыты (<bytes>), но рядом есть «глазик» — можно открыть для одного из них (но в отчёт лучше показать скрытые — это правильное поведение Secret).
-📸 2 скриншота:
-
-ConfigMap app-config с раскрытым содержимым
-Secret app-secrets со списком ключей (значения скрыты — это особенность Secret и она тоже показывает работу)
-
-Итого по пункту 8
-Минимум 6 скриншотов, по списку:
-#ЧтоГде1Узел кластера (Nodes)Cluster → Nodes2Список подовWorkloads → Pods3Метрики CPU/MemoryWorkloads → Deployments (с metrics-server)4Логи postgresPods → postgres → Logs5ConfigMap app-configConfig and Storage → Config Maps6Secret app-secretsConfig and Storage → Secrets
 
 
 
@@ -2589,311 +2435,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 **minikube dashboard. Все 9 сервисов запущены**
-
-
-
-
-```
-Workload Status
-Running: 9
-Deployments
-Running: 9
-Pods
-Running: 9
-Replica Sets
-Deployments
-Name
-Images
-Labels
-Pods
-Created
-gateway-service
-src-gateway-service:latest
-app: gateway-service
-1 / 1
-12 minutes ago
-report-service
-src-report-service:latest
-app: report-service
-1 / 1
-12 minutes ago
-loyalty-service
-src-loyalty-service:latest
-app: loyalty-service
-1 / 1
-12 minutes ago
-payment-service
-src-payment-service:latest
-app: payment-service
-1 / 1
-12 minutes ago
-booking-service
-src-booking-service:latest
-app: booking-service
-1 / 1
-12 minutes ago
-hotel-service
-src-hotel-service:latest
-app: hotel-service
-1 / 1
-13 minutes ago
-session-service
-src-session-service:latest
-app: session-service
-1 / 1
-13 minutes ago
-rabbitmq
-rabbitmq:3.12-management-alpine
-app: rabbitmq
-1 / 1
-14 minutes ago
-postgres
-src-postgres:latest
-app: postgres
-1 / 1
-14 minutes ago
-Pods
-Name
-Images
-Labels
-Node
-Status
-Restarts
-CPU Usage (cores)
-Memory Usage (bytes)
-Created
-gateway-service-85788889bc-ns8ht
-src-gateway-service:latest
-app: gateway-service
-pod-template-hash: 85788889bc
-minikube
-Running
-0
--
--
-12 minutes ago
-report-service-684989fdcf-7hjbx
-src-report-service:latest
-app: report-service
-pod-template-hash: 684989fdcf
-minikube
-Running
-0
--
--
-12 minutes ago
-loyalty-service-5bcdbd4594-7slp4
-src-loyalty-service:latest
-app: loyalty-service
-pod-template-hash: 5bcdbd4594
-minikube
-Running
-0
--
--
-12 minutes ago
-payment-service-74b69df5df-tncgd
-src-payment-service:latest
-app: payment-service
-pod-template-hash: 74b69df5df
-minikube
-Running
-0
--
--
-12 minutes ago
-booking-service-6db4557dd9-fvm5w
-src-booking-service:latest
-app: booking-service
-pod-template-hash: 6db4557dd9
-minikube
-Running
-0
--
--
-12 minutes ago
-hotel-service-76cd4f799-8q5bs
-src-hotel-service:latest
-app: hotel-service
-pod-template-hash: 76cd4f799
-minikube
-Running
-0
--
--
-13 minutes ago
-session-service-5cfcc4db9-448hm
-src-session-service:latest
-app: session-service
-pod-template-hash: 5cfcc4db9
-minikube
-Running
-0
--
--
-13 minutes ago
-rabbitmq-746df59b5c-xjg26
-rabbitmq:3.12-management-alpine
-app: rabbitmq
-pod-template-hash: 746df59b5c
-minikube
-Running
-0
--
--
-14 minutes ago
-postgres-54b5c94c4c-ts52f
-src-postgres:latest
-app: postgres
-pod-template-hash: 54b5c94c4c
-minikube
-Running
-0
--
--
-14 minutes ago
-Replica Sets
-Name
-Images
-Labels
-Pods
-Created
-gateway-service-85788889bc
-src-gateway-service:latest
-app: gateway-service
-pod-template-hash: 85788889bc
-1 / 1
-12 minutes ago
-report-service-684989fdcf
-src-report-service:latest
-app: report-service
-pod-template-hash: 684989fdcf
-1 / 1
-12 minutes ago
-loyalty-service-5bcdbd4594
-src-loyalty-service:latest
-app: loyalty-service
-pod-template-hash: 5bcdbd4594
-1 / 1
-12 minutes ago
-payment-service-74b69df5df
-src-payment-service:latest
-app: payment-service
-pod-template-hash: 74b69df5df
-1 / 1
-12 minutes ago
-booking-service-6db4557dd9
-src-booking-service:latest
-app: booking-service
-pod-template-hash: 6db4557dd9
-1 / 1
-12 minutes ago
-hotel-service-76cd4f799
-src-hotel-service:latest
-app: hotel-service
-pod-template-hash: 76cd4f799
-1 / 1
-13 minutes ago
-session-service-5cfcc4db9
-src-session-service:latest
-app: session-service
-pod-template-hash: 5cfcc4db9
-1 / 1
-13 minutes ago
-rabbitmq-746df59b5c
-rabbitmq:3.12-management-alpine
-app: rabbitmq
-pod-template-hash: 746df59b5c
-1 / 1
-14 minutes ago
-postgres-54b5c94c4c
-src-postgres:latest
-app: postgres
-pod-template-hash: 54b5c94c4c
-1 / 1
-14 minutes ago
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
-   - пересоздание (recreate),
-   - последовательное обновление (rolling).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
