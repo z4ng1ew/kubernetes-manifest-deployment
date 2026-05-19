@@ -17,29 +17,6 @@
 **Запуск minikube с 4 ГБ памяти**
 
 
-```
-(base) s@fedora:~/DO_H_10$ minikube start --memory=4096 --cpus=2 --driver=docker
-😄  minikube v1.38.1 на Fedora 43
-✨  Используется драйвер docker на основе конфига пользователя
-❗  Starting v1.39.0, minikube will default to "containerd" container runtime. See #21973 for more info.
-📌  Using Docker driver with root privileges
-👍  Starting "minikube" primary control-plane node in "minikube" cluster
-🚜  Pulling base image v0.0.50 ...
-💾  Скачивается Kubernetes v1.35.1 ...
-    > preloaded-images-k8s-v18-v1...:  272.45 MiB / 272.45 MiB  100.00% 7.76 Mi
-    > gcr.io/k8s-minikube/kicbase...:  519.58 MiB / 519.58 MiB  100.00% 8.02 Mi
-🔥  Creating docker container (CPUs=2, Memory=4096MB) ...
-🐳  Подготавливается Kubernetes v1.35.1 на Docker 29.2.1 ...
-🔗  Configuring bridge CNI (Container Networking Interface) ...
-🔎  Компоненты Kubernetes проверяются ...
-    ▪ Используется образ gcr.io/k8s-minikube/storage-provisioner:v5
-🌟  Включенные дополнения: storage-provisioner, default-storageclass
-🏄  Готово! kubectl настроен для использования кластера "minikube" и "default" пространства имён по умолчанию
-(base) s@fedora:~/DO_H_10$ 
-```
-
-
-
 
 
 
@@ -53,12 +30,6 @@
 
 **Проверка**
 
-(base) s@fedora:~/DO_H_10$ kubectl get nodes
-NAME       STATUS   ROLES           AGE   VERSION
-minikube   Ready    control-plane   60s   v1.35.1
-(base) s@fedora:~/DO_H_10$ 
-
-
 
 
 
@@ -66,14 +37,7 @@ minikube   Ready    control-plane   60s   v1.35.1
 ![alt text](<img/image copy 8.png>)
 
 
-```
-(base) s@fedora:~/DO_H_10$ kubectl cluster-info
-Kubernetes control plane is running at https://192.168.49.2:8443
-CoreDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
-To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
-(base) s@fedora:~/DO_H_10$ 
-```
 
 
 
@@ -81,19 +45,6 @@ To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ![alt text](<img/image copy 5.png>)
 
 **Проверка**
-
-```
-(base) s@fedora:~/DO_H_10$ minikube status
-minikube
-type: Control Plane
-host: Running
-kubelet: Running
-apiserver: Running
-kubeconfig: Configured
-
-(base) s@fedora:~/DO_H_10$ 
-```
-
 
 
 
@@ -135,56 +86,11 @@ kubeconfig: Configured
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ minikube service list
-┌─────────────┬────────────────┬──────────────┬─────┐
-│  NAMESPACE  │      NAME      │ TARGET PORT  │ URL │
-├─────────────┼────────────────┼──────────────┼─────┤
-│ default     │ kubernetes     │ No node port │     │
-│ kube-system │ kube-dns       │ No node port │     │
-│ kube-system │ metrics-server │ No node port │     │
-└─────────────┴────────────────┴──────────────┴─────┘
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl apply -f src/example/microservices.yml
-deployment.apps/apache created
-deployment.apps/catalog created
-deployment.apps/customer created
-deployment.apps/order created
-service/apache created
-service/catalog created
-service/customer created
-service/order created
-s@Vivo:~/kubernetes-manifest-deployment$ minikube service list
-┌─────────────┬────────────────┬──────────────┬───────────────────────────┐
-│  NAMESPACE  │      NAME      │ TARGET PORT  │            URL            │
-├─────────────┼────────────────┼──────────────┼───────────────────────────┤
-│ default     │ apache         │ 80           │ http://192.168.49.2:32359 │
-│ default     │ catalog        │ 8080         │ http://192.168.49.2:31760 │
-│ default     │ customer       │ 8080         │ http://192.168.49.2:30294 │
-│ default     │ kubernetes     │ No node port │                           │
-│ default     │ order          │ 8080         │ http://192.168.49.2:30878 │
-│ kube-system │ kube-dns       │ No node port │                           │
-│ kube-system │ metrics-server │ No node port │                           │
-└─────────────┴────────────────┴──────────────┴───────────────────────────┘
-s@Vivo:~/kubernetes-manifest-deployment$ 
-```
-
 
 ![alt text](<img/image copy 6.png>)
 
 
 **Применяем готовый манифест из example**
-
-```
-(base) s@fedora:~/DO_H_10$ kubectl apply -f src/example/microservices.yml
-deployment.apps/apache created
-deployment.apps/catalog created
-deployment.apps/customer created
-deployment.apps/order created
-service/apache created
-service/catalog created
-service/customer created
-service/order created
-```
 
 
 
@@ -193,16 +99,6 @@ service/order created
 ![alt text](<img/image copy 9.png>)
 
 **Проверяем что все поды запущены**
-
-```
-(base) s@fedora:~/DO_H_10$ kubectl get pods 
-NAME                       READY   STATUS    RESTARTS      AGE
-apache-7f5f9d6b55-vhxqg    1/1     Running   1 (30m ago)   15h
-catalog-56d5b6f446-lhg7q   1/1     Running   1 (30m ago)   15h
-customer-99d48549d-fjqcc   1/1     Running   1 (30m ago)   15h
-order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
-(base) s@fedora:~/DO_H_10$ 
-```
 
 
 
@@ -274,16 +170,6 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 ![alt text](<img/image copy 13.png>)
 
 
-```
-(base) s@fedora:~/DO_H_10$ minikube service apache
-┌───────────┬────────┬─────────────┬───────────────────────────┐
-│ NAMESPACE │  NAME  │ TARGET PORT │            URL            │
-├───────────┼────────┼─────────────┼───────────────────────────┤
-│ default   │ apache │ 80          │ http://192.168.49.2:31726 │
-└───────────┴────────┴─────────────┴───────────────────────────┘
-🎉  Opening service default/apache in default browser...
-(base) s@fedora:~/DO_H_10$ 
-```
 
 
 
@@ -294,19 +180,6 @@ order-779f66c67f-dtpzb     1/1     Running   1 (30m ago)   15h
 
 
 **Браузер с apache — скриншот страницы**
-
-
-```
-Order Processing
-Customer
-List / add / remove customers
-Catalog
-List / add / remove items
-Catalog
-Search Items
-Order
-Create an order
-```
 
 
 
@@ -323,17 +196,6 @@ Create an order
 
 
 
-```
-(base) s@fedora:~/DO_H_10$ minikube service catalog
-┌───────────┬─────────┬─────────────┬───────────────────────────┐
-│ NAMESPACE │  NAME   │ TARGET PORT │            URL            │
-├───────────┼─────────┼─────────────┼───────────────────────────┤
-│ default   │ catalog │ 8080        │ http://192.168.49.2:31142 │
-└───────────┴─────────┴─────────────┴───────────────────────────┘
-🎉  Opening service default/catalog in default browser...
-(base) s@fedora:~/DO_H_10$ 
-```
-
 
 
 
@@ -349,36 +211,10 @@ Create an order
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ minikube service customer
-┌───────────┬──────────┬─────────────┬───────────────────────────┐
-│ NAMESPACE │   NAME   │ TARGET PORT │            URL            │
-├───────────┼──────────┼─────────────┼───────────────────────────┤
-│ default   │ customer │ 8080        │ http://192.168.49.2:30294 │
-└───────────┴──────────┴─────────────┴───────────────────────────┘
-🎉  Opening service default/customer in default browser...
-s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откроются в текущем сеансе браузера.
-```
-
 
 
 
 ![alt text](<img/image copy 21.png>)
-
-
-```
-{
-  "_links": {
-    "customer": {
-      "href": "http://192.168.49.2:30294/customer{?page,size,sort}",
-      "templated": true
-    },
-    "profile": {
-      "href": "http://192.168.49.2:30294/profile"
-    }
-  }
-}
-```
 
 
 
@@ -390,32 +226,12 @@ s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откр
 
 
 
-```
-Home List
-Order : View all
-ID	Customer	Total Price	
-No orders
-Add Order
-```
-
-
 
 
 ![alt text](<img/image copy 23.png>)
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ minikube service order
-┌───────────┬───────┬─────────────┬───────────────────────────┐
-│ NAMESPACE │ NAME  │ TARGET PORT │            URL            │
-├───────────┼───────┼─────────────┼───────────────────────────┤
-│ default   │ order │ 8080        │ http://192.168.49.2:30878 │
-└───────────┴───────┴─────────────┴───────────────────────────┘
-🎉  Opening service default/order in default browser...
-s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откроются в текущем сеансе браузера.
 
-
-```
 
 
 
@@ -453,17 +269,6 @@ s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откр
 ![alt text](<img/image copy 13.png>)
 
 
-```
-(base) s@fedora:~/DO_H_10$ minikube service apache
-┌───────────┬────────┬─────────────┬───────────────────────────┐
-│ NAMESPACE │  NAME  │ TARGET PORT │            URL            │
-├───────────┼────────┼─────────────┼───────────────────────────┤
-│ default   │ apache │ 80          │ http://192.168.49.2:31726 │
-└───────────┴────────┴─────────────┴───────────────────────────┘
-🎉  Opening service default/apache in default browser...
-(base) s@fedora:~/DO_H_10$ 
-```
-
 
 
 **Главная страница приложения**
@@ -474,18 +279,6 @@ s@Vivo:~/kubernetes-manifest-deployment$ Окно или вкладка откр
 
 **Браузер с apache — скриншот страницы**
 
-
-```
-Order Processing
-Customer
-List / add / remove customers
-Catalog
-List / add / remove items
-Catalog
-Search Items
-Order
-Create an order
-```
 
 
 
@@ -644,44 +437,11 @@ Create an order
 
 
 
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods -o wide
-NAME                               READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
-booking-service-6db4557dd9-fvm5w   1/1     Running   0          4h36m   10.244.0.7    minikube   <none>           <none>
-gateway-service-85788889bc-ns8ht   1/1     Running   0          4h36m   10.244.0.11   minikube   <none>           <none>
-hotel-service-76cd4f799-8q5bs      1/1     Running   0          4h36m   10.244.0.6    minikube   <none>           <none>
-loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          4h36m   10.244.0.9    minikube   <none>           <none>
-payment-service-74b69df5df-tncgd   1/1     Running   0          4h36m   10.244.0.8    minikube   <none>           <none>
-postgres-54b5c94c4c-ts52f          1/1     Running   0          4h38m   10.244.0.3    minikube   <none>           <none>
-rabbitmq-746df59b5c-xjg26          1/1     Running   0          4h38m   10.244.0.4    minikube   <none>           <none>
-report-service-684989fdcf-7hjbx    1/1     Running   0          4h36m   10.244.0.10   minikube   <none>           <none>
-session-service-5cfcc4db9-448hm    1/1     Running   0          4h36m   10.244.0.5    minikube   <none>           <none>
-```
-
-
-
-
 
 
 
 ![alt text](<img/image copy 36.png>)
 
-
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get deployments
-NAME              READY   UP-TO-DATE   AVAILABLE   AGE
-booking-service   1/1     1            1           4h36m
-gateway-service   1/1     1            1           4h36m
-hotel-service     1/1     1            1           4h36m
-loyalty-service   1/1     1            1           4h36m
-payment-service   1/1     1            1           4h36m
-postgres          1/1     1            1           4h38m
-rabbitmq          1/1     1            1           4h38m
-report-service    1/1     1            1           4h36m
-session-service   1/1     1            1           4h36m
-```
 
 
 
@@ -692,29 +452,6 @@ session-service   1/1     1            1           4h36m
 
 
 ![alt text](<img/image copy 37.png>)
-
-
-
-
-
-
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get services
-NAME              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
-booking-service   ClusterIP   10.98.24.93      <none>        8083/TCP             4h36m
-gateway-service   NodePort    10.105.174.71    <none>        8087:32003/TCP       4h36m
-hotel-service     ClusterIP   10.98.139.148    <none>        8082/TCP             4h36m
-kubernetes        ClusterIP   10.96.0.1        <none>        443/TCP              5h12m
-loyalty-service   ClusterIP   10.101.26.223    <none>        8085/TCP             4h36m
-payment-service   ClusterIP   10.97.72.30      <none>        8084/TCP             4h36m
-postgres          ClusterIP   10.98.27.86      <none>        5432/TCP             4h38m
-rabbitmq          ClusterIP   10.98.207.200    <none>        5672/TCP,15672/TCP   4h38m
-report-service    ClusterIP   10.107.193.152   <none>        8086/TCP             4h36m
-session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP       4h37m
-```
-
 
 
 
@@ -743,24 +480,6 @@ session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP     
 
 **Все 9 строк со значением REPLICAS=1**
 
-
-
-
-
-
-```
-s@Vivo:~/kubernetes-manifest-deployment$ kubectl get deployments -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas
-NAME              REPLICAS
-booking-service   1
-gateway-service   1
-hotel-service     1
-loyalty-service   1
-payment-service   1
-postgres          1
-rabbitmq          1
-report-service    1
-session-service   1
-```
 
 
 
@@ -1846,117 +1565,3 @@ loyalty-service-5bcdbd4594-xmd5p   1/1   Terminating 0   2m20s  ← старый
 #  Задание DO_H_10 выполнено
 
 Все 9 пунктов закрыты:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
