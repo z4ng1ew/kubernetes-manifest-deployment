@@ -1132,8 +1132,144 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get all
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/booking-service-6db4557dd9-fvm5w   1/1     Running   0          21h
+pod/gateway-service-85788889bc-ns8ht   1/1     Running   0          21h
+pod/hotel-service-76cd4f799-8q5bs      1/1     Running   0          21h
+pod/loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          21h
+pod/payment-service-74b69df5df-tncgd   1/1     Running   0          21h
+pod/postgres-54b5c94c4c-ts52f          1/1     Running   0          21h
+pod/rabbitmq-746df59b5c-xjg26          1/1     Running   0          21h
+pod/report-service-684989fdcf-7hjbx    1/1     Running   0          21h
+pod/session-service-5cfcc4db9-448hm    1/1     Running   0          21h
 
-![alt text](<img/image copy 41.png>)
+NAME                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
+service/booking-service   ClusterIP   10.98.24.93      <none>        8083/TCP             21h
+service/gateway-service   NodePort    10.105.174.71    <none>        8087:32003/TCP       21h
+service/hotel-service     ClusterIP   10.98.139.148    <none>        8082/TCP             21h
+service/kubernetes        ClusterIP   10.96.0.1        <none>        443/TCP              22h
+service/loyalty-service   ClusterIP   10.101.26.223    <none>        8085/TCP             21h
+service/payment-service   ClusterIP   10.97.72.30      <none>        8084/TCP             21h
+service/postgres          ClusterIP   10.98.27.86      <none>        5432/TCP             21h
+service/rabbitmq          ClusterIP   10.98.207.200    <none>        5672/TCP,15672/TCP   21h
+service/report-service    ClusterIP   10.107.193.152   <none>        8086/TCP             21h
+service/session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP       21h
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/booking-service   1/1     1            1           21h
+deployment.apps/gateway-service   1/1     1            1           21h
+deployment.apps/hotel-service     1/1     1            1           21h
+deployment.apps/loyalty-service   1/1     1            1           21h
+deployment.apps/payment-service   1/1     1            1           21h
+deployment.apps/postgres          1/1     1            1           21h
+deployment.apps/rabbitmq          1/1     1            1           21h
+deployment.apps/report-service    1/1     1            1           21h
+deployment.apps/session-service   1/1     1            1           21h
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/booking-service-6db4557dd9   1         1         1       21h
+replicaset.apps/gateway-service-85788889bc   1         1         1       21h
+replicaset.apps/hotel-service-76cd4f799      1         1         1       21h
+replicaset.apps/loyalty-service-5bcdbd4594   1         1         1       21h
+replicaset.apps/payment-service-74b69df5df   1         1         1       21h
+replicaset.apps/postgres-54b5c94c4c          1         1         1       21h
+replicaset.apps/rabbitmq-746df59b5c          1         1         1       21h
+replicaset.apps/report-service-684989fdcf    1         1         1       21h
+replicaset.apps/session-service-5cfcc4db9    1         1         1       21h
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 42.png>)
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe pod booking-service-6db4557dd9-fvm5w
+Name:             booking-service-6db4557dd9-fvm5w
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Mon, 18 May 2026 13:23:00 +0300
+Labels:           app=booking-service
+                  pod-template-hash=6db4557dd9
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.7
+IPs:
+  IP:           10.244.0.7
+Controlled By:  ReplicaSet/booking-service-6db4557dd9
+Containers:
+  booking-service:
+    Container ID:   docker://fe20c44364d446dd03510dcd29bb5ae318faea9627f18ba3c7a864d180fd07ea
+    Image:          src-booking-service:latest
+    Image ID:       docker://sha256:ef69d350f34904a0ee58db241b2bba79359001a9818c0b9c3a0731b6d9564eb7
+    Port:           8083/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Mon, 18 May 2026 13:23:00 +0300
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      POSTGRES_HOST:         <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
+      POSTGRES_PORT:         <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
+      POSTGRES_DB:           reservations_db
+      POSTGRES_USER:         <set to the key 'POSTGRES_USER' in secret 'app-secrets'>            Optional: false
+      POSTGRES_PASSWORD:     <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>        Optional: false
+      RABBIT_MQ_HOST:        <set to the key 'RABBIT_MQ_HOST' of config map 'app-config'>        Optional: false
+      RABBIT_MQ_PORT:        <set to the key 'RABBIT_MQ_PORT' of config map 'app-config'>        Optional: false
+      RABBIT_MQ_QUEUE_NAME:  <set to the key 'RABBIT_MQ_QUEUE_NAME' of config map 'app-config'>  Optional: false
+      RABBIT_MQ_EXCHANGE:    <set to the key 'RABBIT_MQ_EXCHANGE' of config map 'app-config'>    Optional: false
+      RABBIT_MQ_USER:        <set to the key 'RABBIT_MQ_USER' in secret 'app-secrets'>           Optional: false
+      RABBIT_MQ_PASSWORD:    <set to the key 'RABBIT_MQ_PASSWORD' in secret 'app-secrets'>       Optional: false
+      HOTEL_SERVICE_HOST:    <set to the key 'HOTEL_SERVICE_HOST' of config map 'app-config'>    Optional: false
+      HOTEL_SERVICE_PORT:    <set to the key 'HOTEL_SERVICE_PORT' of config map 'app-config'>    Optional: false
+      PAYMENT_SERVICE_HOST:  <set to the key 'PAYMENT_SERVICE_HOST' of config map 'app-config'>  Optional: false
+      PAYMENT_SERVICE_PORT:  <set to the key 'PAYMENT_SERVICE_PORT' of config map 'app-config'>  Optional: false
+      LOYALTY_SERVICE_HOST:  <set to the key 'LOYALTY_SERVICE_HOST' of config map 'app-config'>  Optional: false
+      LOYALTY_SERVICE_PORT:  <set to the key 'LOYALTY_SERVICE_PORT' of config map 'app-config'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v658l (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-v658l:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
+
+
+
+
+
+
+
 
 
 
