@@ -812,7 +812,7 @@ Events:  <none>
 
 
 
-##   1.2 секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
+##   1.2 Секреты с паролем и логином к БД и ключами межсервисной авторизации (их можно найти в файлах `application.properties`),
 
 
 
@@ -823,6 +823,29 @@ Events:  <none>
 
 
 
+```
+s@Vivo:~/kubernetes-manifest-deployment$ cat src/k8s/02-secrets.yaml
+# Secret — секреты (пароли, ключи). Значения в base64 (echo -n 'значение' | base64).
+# Декодирование: kubectl get secret app-secrets -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 --decode
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+data:
+  # postgres — пароль вшит в твой Dockerfile postgres-образа
+  POSTGRES_USER: cG9zdGdyZXM=
+  # postgres
+  POSTGRES_PASSWORD: cG9zdGdyZXM=
+  # guest — стандартный пользователь rabbitmq
+  RABBIT_MQ_USER: Z3Vlc3Q=
+  # guest
+  RABBIT_MQ_PASSWORD: Z3Vlc3Q=
+  # b51ceda2-bfa5-11eb-8529-0242ac130003 — UUID gateway-сервиса (межсервисная авторизация)
+  GATEWAY_SERVICE_UUID: YjUxY2VkYTItYmZhNS0xMWViLTg1MjktMDI0MmFjMTMwMDAz
+  # 911ccb4c-c055-11eb-8529-0242ac130003 — UUID booking-сервиса
+  BOOKING_SERVICE_UUID: OTExY2NiNGMtYzA1NS0xMWViLTg1MjktMDI0MmFjMTMwMDAz
+```
 
 
 
@@ -884,6 +907,52 @@ Events:  <none>
 
 
 
+![alt text](image.png)
+
+
+
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get pods -o wide
+NAME                               READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+booking-service-6db4557dd9-fvm5w   1/1     Running   0          4h36m   10.244.0.7    minikube   <none>           <none>
+gateway-service-85788889bc-ns8ht   1/1     Running   0          4h36m   10.244.0.11   minikube   <none>           <none>
+hotel-service-76cd4f799-8q5bs      1/1     Running   0          4h36m   10.244.0.6    minikube   <none>           <none>
+loyalty-service-5bcdbd4594-7slp4   1/1     Running   0          4h36m   10.244.0.9    minikube   <none>           <none>
+payment-service-74b69df5df-tncgd   1/1     Running   0          4h36m   10.244.0.8    minikube   <none>           <none>
+postgres-54b5c94c4c-ts52f          1/1     Running   0          4h38m   10.244.0.3    minikube   <none>           <none>
+rabbitmq-746df59b5c-xjg26          1/1     Running   0          4h38m   10.244.0.4    minikube   <none>           <none>
+report-service-684989fdcf-7hjbx    1/1     Running   0          4h36m   10.244.0.10   minikube   <none>           <none>
+session-service-5cfcc4db9-448hm    1/1     Running   0          4h36m   10.244.0.5    minikube   <none>           <none>
+```
+
+
+
+
+
+
+
+![alt text](<img/image copy 36.png>)
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get deployments
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+booking-service   1/1     1            1           4h36m
+gateway-service   1/1     1            1           4h36m
+hotel-service     1/1     1            1           4h36m
+loyalty-service   1/1     1            1           4h36m
+payment-service   1/1     1            1           4h36m
+postgres          1/1     1            1           4h38m
+rabbitmq          1/1     1            1           4h38m
+report-service    1/1     1            1           4h36m
+session-service   1/1     1            1           4h36m
+```
 
 
 
@@ -893,6 +962,7 @@ Events:  <none>
 
 
 
+![alt text](<img/image copy 37.png>)
 
 
 
@@ -901,25 +971,20 @@ Events:  <none>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl get services
+NAME              TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
+booking-service   ClusterIP   10.98.24.93      <none>        8083/TCP             4h36m
+gateway-service   NodePort    10.105.174.71    <none>        8087:32003/TCP       4h36m
+hotel-service     ClusterIP   10.98.139.148    <none>        8082/TCP             4h36m
+kubernetes        ClusterIP   10.96.0.1        <none>        443/TCP              5h12m
+loyalty-service   ClusterIP   10.101.26.223    <none>        8085/TCP             4h36m
+payment-service   ClusterIP   10.97.72.30      <none>        8084/TCP             4h36m
+postgres          ClusterIP   10.98.27.86      <none>        5432/TCP             4h38m
+rabbitmq          ClusterIP   10.98.207.200    <none>        5672/TCP,15672/TCP   4h38m
+report-service    ClusterIP   10.107.193.152   <none>        8086/TCP             4h36m
+session-service   NodePort    10.100.177.26    <none>        8081:32562/TCP       4h37m
+```
 
 
 
