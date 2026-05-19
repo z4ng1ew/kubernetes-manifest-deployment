@@ -1880,9 +1880,134 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-5. Проверить логи приложения, запущенного в кластере, командой `kubectl logs <имя_контейнера>`. Скриншот отобразить в отчете.
+## 5. Проверить логи приложения, запущенного в кластере, командой `kubectl logs <имя_контейнера>`. Скриншот отобразить в отчете.
+
+
+
+
+![alt text](<img/image copy 55.png>)
+
+**gateway-service**
+
+![alt text](<img/image copy 56.png>)
+
+
+
+**booking**
+
+![alt text](<img/image copy 57.png>)
+
+
+**postgres**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 63.png>)
+
+
+
+
+**hotel-service**
+
+
+
+
+
+
+![alt text](<img/image copy 62.png>)
+
+**loyalty-service**
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 60.png>)
+
+**payment-service**
+
+
+
+
+
+![alt text](<img/image copy 61.png>)
+
+
+
+
+**rabbitmq**
+
+
+
+
+![alt text](<img/image copy 59.png>)
+
+
+**report-service**
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 58.png>)
+
+
+**session-service**
+
+
+
+
+
+
+
+
+
+
+
+
 
 6. Прокинуть туннели для доступа к gateway service и session service.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 7. Запустить функциональные тесты Postman и удостовериться в работоспособности приложения.
 
@@ -1891,17 +2016,6 @@ s@Vivo:~/kubernetes-manifest-deployment$
 9. Обновить приложение (добавив новую зависимость в pom-файл) и пересобрать его со следующими стратегиями развертывания (замерить время переразвертывания приложения для каждого случая и отметить результаты в отчете):
    - пересоздание (recreate),
    - последовательное обновление (rolling).
-
-
-
-
-
-![alt text](<img/image copy 54.png>)
-
-
-
-
-
 
 
 
