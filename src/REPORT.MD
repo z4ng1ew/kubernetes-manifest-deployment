@@ -1270,6 +1270,469 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
+![alt text](<img/image copy 43.png>)
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment gateway-service
+Name:                   gateway-service
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:23:31 +0300
+Labels:                 app=gateway-service
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=gateway-service
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=gateway-service
+  Containers:
+   gateway-service:
+    Image:      src-gateway-service:latest
+    Port:       8087/TCP
+    Host Port:  0/TCP
+    Environment:
+      SESSION_SERVICE_HOST:  <set to the key 'SESSION_SERVICE_HOST' of config map 'app-config'>  Optional: false
+      SESSION_SERVICE_PORT:  <set to the key 'SESSION_SERVICE_PORT' of config map 'app-config'>  Optional: false
+      HOTEL_SERVICE_HOST:    <set to the key 'HOTEL_SERVICE_HOST' of config map 'app-config'>    Optional: false
+      HOTEL_SERVICE_PORT:    <set to the key 'HOTEL_SERVICE_PORT' of config map 'app-config'>    Optional: false
+      BOOKING_SERVICE_HOST:  <set to the key 'BOOKING_SERVICE_HOST' of config map 'app-config'>  Optional: false
+      BOOKING_SERVICE_PORT:  <set to the key 'BOOKING_SERVICE_PORT' of config map 'app-config'>  Optional: false
+      LOYALTY_SERVICE_HOST:  <set to the key 'LOYALTY_SERVICE_HOST' of config map 'app-config'>  Optional: false
+      LOYALTY_SERVICE_PORT:  <set to the key 'LOYALTY_SERVICE_PORT' of config map 'app-config'>  Optional: false
+      REPORT_SERVICE_HOST:   <set to the key 'REPORT_SERVICE_HOST' of config map 'app-config'>   Optional: false
+      REPORT_SERVICE_PORT:   <set to the key 'REPORT_SERVICE_PORT' of config map 'app-config'>   Optional: false
+    Mounts:                  <none>
+  Volumes:                   <none>
+  Node-Selectors:            <none>
+  Tolerations:               <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   gateway-service-85788889bc (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 44.png>)
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment hotel-service
+Name:                   hotel-service
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:22:53 +0300
+Labels:                 app=hotel-service
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=hotel-service
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=hotel-service
+  Containers:
+   hotel-service:
+    Image:      src-hotel-service:latest
+    Port:       8082/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
+      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
+      POSTGRES_DB:        hotels_db
+      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
+    Mounts:               <none>
+  Volumes:                <none>
+  Node-Selectors:         <none>
+  Tolerations:            <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   hotel-service-76cd4f799 (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 45.png>)
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment loyalty-service
+Name:                   loyalty-service
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:23:17 +0300
+Labels:                 app=loyalty-service
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=loyalty-service
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=loyalty-service
+  Containers:
+   loyalty-service:
+    Image:      src-loyalty-service:latest
+    Port:       8085/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
+      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
+      POSTGRES_DB:        balances_db
+      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
+    Mounts:               <none>
+  Volumes:                <none>
+  Node-Selectors:         <none>
+  Tolerations:            <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   loyalty-service-5bcdbd4594 (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 46.png>)
+
+
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment payment-service
+Name:                   payment-service
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:23:09 +0300
+Labels:                 app=payment-service
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=payment-service
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=payment-service
+  Containers:
+   payment-service:
+    Image:      src-payment-service:latest
+    Port:       8084/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
+      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
+      POSTGRES_DB:        payments_db
+      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
+    Mounts:               <none>
+  Volumes:                <none>
+  Node-Selectors:         <none>
+  Tolerations:            <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   payment-service-74b69df5df (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 47.png>)
+
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment postgres
+Name:                   postgres
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:20:59 +0300
+Labels:                 app=postgres
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=postgres
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=postgres
+  Containers:
+   postgres:
+    Image:      src-postgres:latest
+    Port:       5432/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
+      POSTGRES_DB:        postgres
+    Mounts:               <none>
+  Volumes:                <none>
+  Node-Selectors:         <none>
+  Tolerations:            <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   postgres-54b5c94c4c (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 48.png>)
+
+
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment rabbitmq
+Name:                   rabbitmq
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:21:06 +0300
+Labels:                 app=rabbitmq
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=rabbitmq
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=rabbitmq
+  Containers:
+   rabbitmq:
+    Image:       rabbitmq:3.12-management-alpine
+    Ports:       5672/TCP, 15672/TCP
+    Host Ports:  0/TCP, 0/TCP
+    Environment:
+      RABBITMQ_DEFAULT_USER:  <set to the key 'RABBIT_MQ_USER' in secret 'app-secrets'>      Optional: false
+      RABBITMQ_DEFAULT_PASS:  <set to the key 'RABBIT_MQ_PASSWORD' in secret 'app-secrets'>  Optional: false
+    Mounts:                   <none>
+  Volumes:                    <none>
+  Node-Selectors:             <none>
+  Tolerations:                <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   rabbitmq-746df59b5c (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 49.png>)
+
+
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment report-service
+Name:                   report-service
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:23:23 +0300
+Labels:                 app=report-service
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=report-service
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=report-service
+  Containers:
+   report-service:
+    Image:      src-report-service:latest
+    Port:       8086/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_HOST:         <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
+      POSTGRES_PORT:         <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
+      POSTGRES_DB:           statistics_db
+      POSTGRES_USER:         <set to the key 'POSTGRES_USER' in secret 'app-secrets'>            Optional: false
+      POSTGRES_PASSWORD:     <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>        Optional: false
+      RABBIT_MQ_HOST:        <set to the key 'RABBIT_MQ_HOST' of config map 'app-config'>        Optional: false
+      RABBIT_MQ_PORT:        <set to the key 'RABBIT_MQ_PORT' of config map 'app-config'>        Optional: false
+      RABBIT_MQ_QUEUE_NAME:  <set to the key 'RABBIT_MQ_QUEUE_NAME' of config map 'app-config'>  Optional: false
+      RABBIT_MQ_EXCHANGE:    <set to the key 'RABBIT_MQ_EXCHANGE' of config map 'app-config'>    Optional: false
+      RABBIT_MQ_USER:        <set to the key 'RABBIT_MQ_USER' in secret 'app-secrets'>           Optional: false
+      RABBIT_MQ_PASSWORD:    <set to the key 'RABBIT_MQ_PASSWORD' in secret 'app-secrets'>       Optional: false
+    Mounts:                  <none>
+  Volumes:                   <none>
+  Node-Selectors:            <none>
+  Tolerations:               <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   report-service-684989fdcf (1/1 replicas created)
+Events:          <none>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+![alt text](<img/image copy 50.png>)
+
+
+```
+s@Vivo:~/kubernetes-manifest-deployment$ kubectl describe deployment session-service
+Name:                   session-service
+Namespace:              default
+CreationTimestamp:      Mon, 18 May 2026 13:22:48 +0300
+Labels:                 app=session-service
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=session-service
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=session-service
+  Containers:
+   session-service:
+    Image:      src-session-service:latest
+    Port:       8081/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_HOST:      <set to the key 'POSTGRES_HOST' of config map 'app-config'>  Optional: false
+      POSTGRES_PORT:      <set to the key 'POSTGRES_PORT' of config map 'app-config'>  Optional: false
+      POSTGRES_DB:        users_db
+      POSTGRES_USER:      <set to the key 'POSTGRES_USER' in secret 'app-secrets'>      Optional: false
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'app-secrets'>  Optional: false
+    Mounts:               <none>
+  Volumes:                <none>
+  Node-Selectors:         <none>
+  Tolerations:            <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   session-service-5cfcc4db9 (1/1 replicas created)
+Events:          <none>
+s@Vivo:~/kubernetes-manifest-deployment$ 
+```
+
+
+
+
+
+
+
+
 
 
 
