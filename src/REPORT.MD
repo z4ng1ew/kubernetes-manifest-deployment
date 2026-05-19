@@ -1989,15 +1989,38 @@ s@Vivo:~/kubernetes-manifest-deployment$
 
 
 
-6. Прокинуть туннели для доступа к gateway service и session service.
+## 6. Прокинуть туннели для доступа к gateway service и session service.
+
+**Gateway**
+
+![alt text](<img/image copy 64.png>)
+
+
+![alt text](<img/image copy 65.png>)
+
+
+```bash
+$ minikube service gateway-service
+┌───────────┬─────────────────┬─────────────┬───────────────────────────┐
+│ NAMESPACE │      NAME       │ TARGET PORT │            URL            │
+├───────────┼─────────────────┼─────────────┼───────────────────────────┤
+│ default   │ gateway-service │ 8087        │ http://192.168.49.2:32003 │
+└───────────┴─────────────────┴─────────────┴───────────────────────────┘
+```
 
 
 
+Браузер показывает Whitelabel Error Page от Spring Boot — это стандартная страница 
+ошибки фреймворка для несуществующего пути. Сам факт получения этой страницы 
+доказывает, что:
+- туннель проброшен корректно
+- под gateway-service запущен и отвечает  
+- Spring Boot приложение работает
+- сетевая цепочка NodePort → Service → Pod функционирует
 
-
-
-
-
+Корневой путь `/` не имеет mapping, поскольку gateway маршрутизирует запросы только 
+на endpoint'ы `/api/v1/...`. Полноценная проверка функциональности — в пункте 7 
+(Postman-тесты).
 
 
 
