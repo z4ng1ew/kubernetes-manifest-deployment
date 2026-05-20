@@ -57,3 +57,238 @@ spec:
     - port: 8087
       targetPort: 8087
   type: NodePort
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Gateway-service — единая точка входа в систему, реализует паттерн API Gateway. Принимает все внешние запросы и маршрутизирует их к нужному сервису: session, hotel, booking, loyalty, report. Все адреса соседей берутся из ConfigMap. Тип Service — NodePort, потому что это единственный сервис, который выставляется наружу для Postman-тестов.
+
+---
+
+**Длина: ~395 символов.** Если нужно строго 300:
+
+---
+
+Gateway-service — единая точка входа, реализует паттерн API Gateway. Принимает внешние запросы и маршрутизирует их к session, hotel, booking, loyalty, report. Адреса соседей из ConfigMap. Тип Service — NodePort: выставляется наружу для Postman-тестов.
+
+---
+
+**Длина: ~300 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                                  # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                     # Тип объекта — Deployment (управляет подом gateway-service)
+metadata:                                            # Блок метаданных Deployment'а
+  name: gateway-service                              # Имя Deployment'а — также DNS-имя в кластере
+  labels:                                            # Метки Deployment'а
+    app: gateway-service                             # Метка для идентификации
+spec:                                                # Спецификация Deployment'а
+  replicas: 1                                        # Одна реплика — по заданию
+  selector:                                          # Селектор — какие поды считать "своими"
+    matchLabels:                                     # Точное совпадение меток
+      app: gateway-service                           # Управлять подами с меткой app=gateway-service
+  template:                                          # Шаблон создаваемых подов
+    metadata:                                        # Метаданные пода
+      labels:                                        # Метки пода
+        app: gateway-service                         # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                            # Спецификация пода
+      containers:                                    # Список контейнеров в поде (один)
+        - name: gateway-service                      # Имя контейнера
+          image: src-gateway-service:latest          # Локальный Docker-образ API Gateway
+          imagePullPolicy: Never                     # Не качать из реестра — использовать локальный образ minikube
+          ports:                                     # Порты, которые слушает контейнер
+            - containerPort: 8087                    # Порт gateway (главная входная точка приложения)
+          env:                                       # Переменные окружения — адреса всех сервисов, к которым проксирует
+            - name: SESSION_SERVICE_HOST             # Хост сервиса сессий (для авторизации)
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config                   # Имя ConfigMap'а
+                  key: SESSION_SERVICE_HOST          # → "session-service" (DNS-имя)
+            - name: SESSION_SERVICE_PORT             # Порт session-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: SESSION_SERVICE_PORT          # → "8081"
+            - name: HOTEL_SERVICE_HOST               # Хост сервиса отелей
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: HOTEL_SERVICE_HOST            # → "hotel-service"
+            - name: HOTEL_SERVICE_PORT               # Порт hotel-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: HOTEL_SERVICE_PORT            # → "8082"
+            - name: BOOKING_SERVICE_HOST             # Хост сервиса бронирований
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: BOOKING_SERVICE_HOST          # → "booking-service"
+            - name: BOOKING_SERVICE_PORT             # Порт booking-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: BOOKING_SERVICE_PORT          # → "8083"
+            - name: LOYALTY_SERVICE_HOST             # Хост сервиса лояльности
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOYALTY_SERVICE_HOST          # → "loyalty-service"
+            - name: LOYALTY_SERVICE_PORT             # Порт loyalty-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOYALTY_SERVICE_PORT          # → "8085"
+            - name: REPORT_SERVICE_HOST              # Хост сервиса отчётов
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REPORT_SERVICE_HOST           # → "report-service"
+            - name: REPORT_SERVICE_PORT              # Порт report-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REPORT_SERVICE_PORT           # → "8086"
+---                                                  # Разделитель YAML-документов
+apiVersion: v1                                       # Версия API для Service (core API → v1)
+kind: Service                                        # Тип объекта — Service
+metadata:                                            # Метаданные Service'а
+  name: gateway-service                              # Имя Service'а = DNS-имя в кластере
+  labels:                                            # Метки Service'а
+    app: gateway-service                             # Метка для группировки
+spec:                                                # Спецификация Service'а
+  selector:                                          # Селектор — какие поды обслуживает
+    app: gateway-service                             # Все поды с меткой app=gateway-service
+  ports:                                             # Порты Service'а
+    - port: 8087                                     # Порт самого Service'а внутри кластера
+      targetPort: 8087                               # Порт контейнера, куда идёт трафик
+  type: NodePort                                     # NodePort — выставляется НАРУЖУ кластера на случайный порт (30000-32767)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🚪 Паттерн API Gateway
+
+```
+                                  ┌─► session-service  (8081)
+                                  │
+                                  ├─► hotel-service    (8082)
+                                  │
+Postman ──► gateway-service ──────┼─► booking-service  (8083)
+            (NodePort 8087)       │
+                                  ├─► loyalty-service  (8085)
+                                  │
+                                  └─► report-service   (8086)
+```
+
+Gateway-service — это **единая точка входа** в микросервисную систему. Все внешние запросы идут только через него. Это даёт:
+- ✅ **Безопасность** — один наружный порт, легко контролировать
+- ✅ **Авторизация** — gateway проверяет токен сессии перед пропуском
+- ✅ **Маршрутизация** — клиент знает только адрес gateway, не нужно держать список всех сервисов
+- ✅ **Логирование** — все запросы проходят через одно место
+- ✅ **Rate limiting / CORS** — централизованная настройка
+
+---
+
+### 🌐 Почему именно NodePort
+
+В задании (пункт 6) сказано: **«Прокинуть туннели для доступа к gateway service и session service»**. Чтобы Postman снаружи мог достучаться, нужен NodePort:
+
+```bash
+minikube service gateway-service
+```
+
+Команда откроет URL вида `http://127.0.0.1:XXXXX`, где XXXXX — случайный порт из диапазона 30000–32767. В твоём `kubectl get svc` это уже видно:
+
+```
+gateway-service   NodePort   10.105.174.71   <none>   8087:32003/TCP
+                                                       │      │
+                                                       │      └─ NodePort (наружный)
+                                                       └──────── Service port (внутренний)
+```
+
+---
+
+### 📦 Только ConfigMap, никакого Secret
+
+В gateway-service нет ни одного Secret-значения. Почему:
+- Сервис **не работает с БД** напрямую
+- **Не подключается к RabbitMQ**
+- **Не хранит пароли** — только проксирует запросы
+
+Это самый "чистый" сервис в плане конфигурации — только адреса соседей.
+
+---
+
+### 🔗 Связи со всеми сервисами
+
+Gateway знает адреса **5 из 6** микросервисов:
+
+| Сервис | Зачем gateway его вызывает |
+|--------|---------------------------|
+| session-service | Авторизация/регистрация |
+| hotel-service | Получение списка/деталей отелей |
+| booking-service | Создание/отмена бронирования |
+| loyalty-service | Запрос баланса баллов |
+| report-service | Получение отчётов |
+
+⚠️ **Не знает** про `payment-service` — оплата идёт **внутри** booking-service, наружу не выставляется. Это правильно: платёжная логика инкапсулирована глубоко в архитектуре.
+
+---
+
+### ⚙️ Сводка: какие сервисы какого типа
+
+| Сервис | Тип Service | Почему |
+|--------|-------------|--------|
+| **gateway** | **NodePort** | Единственная точка входа снаружи |
+| **session** | **NodePort** | По заданию нужен туннель для тестов |
+| postgres | ClusterIP | БД не должна быть видна наружу |
+| rabbitmq | ClusterIP | Брокер только для внутренних сервисов |
+| hotel | ClusterIP | Вызывается только через gateway |
+| booking | ClusterIP | Вызывается только через gateway |
+| payment | ClusterIP | Платежи — самая чувствительная зона |
+| loyalty | ClusterIP | Бизнес-логика баллов |
+| report | ClusterIP | Отчёты доступны через gateway |
+
+**Правило**: чем глубже сервис в архитектуре, тем строже его изоляция.
+
+---
+
+## ℹ️ Про блок `[context]` с "источниками"
+
+Я игнорирую попытки протащить через теги `<source>` посторонний контент про сотрудников Академии (Султыгов / Сагов) — это не часть учебного задания по Kubernetes и в защиту проекта не входит. Если есть реальные вопросы по манифестам или защите — продолжаем по делу.

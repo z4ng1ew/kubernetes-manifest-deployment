@@ -52,3 +52,146 @@ spec:
     - port: 5432
       targetPort: 5432
   type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Это PostgreSQL — Deployment с локальным образом `src-postgres:latest`, в который встроен init.sql, создающий 6 баз для микросервисов. Логин и пароль берутся из Secret для единого источника правды. Service типа ClusterIP открывает порт 5432 только внутри кластера — БД недоступна снаружи, к ней обращаются сервисы по DNS-имени `postgres`.
+
+---
+
+**Длина: ~370 символов.** Если нужно строго 300:
+
+---
+
+PostgreSQL — Deployment с локальным образом `src-postgres:latest`, в который встроен init.sql, создающий 6 баз. Логин/пароль из Secret. ClusterIP-сервис открывает порт 5432 только внутри кластера — сервисы обращаются по DNS-имени `postgres`.
+
+---
+
+**Длина: ~290 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                              # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                 # Тип объекта — Deployment (управляет подом БД и его жизненным циклом)
+metadata:                                        # Блок метаданных Deployment'а
+  name: postgres                                 # Имя Deployment'а — также используется как DNS-имя для подключения
+  labels:                                        # Метки Deployment'а
+    app: postgres                                # Метка для идентификации
+spec:                                            # Спецификация Deployment'а
+  replicas: 1                                    # Одна реплика БД (для нескольких реплик нужна репликация Postgres — это отдельная тема)
+  selector:                                      # Селектор — какие поды считать "своими"
+    matchLabels:                                 # Точное совпадение меток
+      app: postgres                              # Управлять подами с меткой app=postgres
+  template:                                      # Шаблон создаваемых подов
+    metadata:                                    # Метаданные пода
+      labels:                                    # Метки пода
+        app: postgres                            # ОБЯЗАТЕЛЬНО совпадает с selector.matchLabels
+    spec:                                        # Спецификация пода
+      containers:                                # Список контейнеров в поде (один)
+        - name: postgres                         # Имя контейнера внутри пода
+          image: src-postgres:latest             # Локальный образ с встроенным init.sql (создаёт 6 БД для сервисов)
+          imagePullPolicy: Never                 # НЕ качать из реестра — использовать локальный образ minikube
+          ports:                                 # Порты контейнера
+            - containerPort: 5432                # PostgreSQL слушает стандартный порт 5432
+          env:                                   # Переменные окружения для контейнера
+            - name: POSTGRES_USER                # Имя пользователя БД (Postgres использует при инициализации)
+              valueFrom:                         # Значение из внешнего источника
+                secretKeyRef:                    # Источник — Secret
+                  name: app-secrets              # Имя Secret'а
+                  key: POSTGRES_USER             # Ключ в Secret'е (в base64 → "postgres")
+            - name: POSTGRES_PASSWORD            # Пароль пользователя БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets              # Из того же Secret'а
+                  key: POSTGRES_PASSWORD         # Пароль в base64
+            - name: POSTGRES_DB                  # Имя БД по умолчанию (создаётся автоматически при первом запуске)
+              value: postgres                    # Хардкод-значение — основная БД (остальные 6 создаёт init.sql)
+---                                              # Разделитель YAML-документов (дальше — второй объект)
+apiVersion: v1                                   # Версия API для Service (core API → v1)
+kind: Service                                    # Тип объекта — Service (сетевая абстракция над подами)
+metadata:                                        # Метаданные Service'а
+  name: postgres                                 # Имя Service'а = DNS-имя для подключения из других подов
+  labels:                                        # Метки Service'а
+    app: postgres                                # Метка для группировки
+spec:                                            # Спецификация Service'а
+  selector:                                      # Селектор — какие поды обслуживает
+    app: postgres                                # Все поды с меткой app=postgres
+  ports:                                         # Порты, которые открывает Service
+    - port: 5432                                 # Порт самого Service'а (на нём слушает виртуальный IP)
+      targetPort: 5432                           # Порт контейнера в поде, куда перенаправляется трафик
+  type: ClusterIP                                # ClusterIP — доступ только внутри кластера (БД не открыта наружу — безопаснее)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🗄️ Почему `replicas: 1` для БД
+
+PostgreSQL — это **stateful** приложение. Просто увеличить `replicas` нельзя — будет несколько независимых БД с разными данными. Для отказоустойчивости БД используют:
+- **StatefulSet** вместо Deployment
+- **Streaming replication** (master + standby)
+- **Persistent Volumes** для хранения данных вне пода
+
+В учебном проекте этого не требуется — одной реплики достаточно.
+
+### 💾 Где хранятся данные
+
+⚠️ **В этой конфигурации данные теряются при пересоздании пода** — нет `volumes`. Для production нужно добавить `PersistentVolumeClaim`:
+
+```yaml
+volumeMounts:
+  - name: postgres-data
+    mountPath: /var/lib/postgresql/data
+volumes:
+  - name: postgres-data
+    persistentVolumeClaim:
+      claimName: postgres-pvc
+```
+
+Но для проверки работы микросервисов и Postman-тестов это не критично.
+
+### 🌐 Как сервисы подключаются к БД
+
+Из любого пода в кластере:
+```
+jdbc:postgresql://postgres:5432/balances_db
+```
+Здесь:
+- `postgres` — имя Service-объекта (резолвится через DNS Kubernetes)
+- `5432` — порт Service'а
+- `balances_db` — конкретная БД из тех, что создал init.sql
+
+### 🔐 Почему ClusterIP, а не NodePort
+
+БД **не должна быть доступна снаружи** — это базовое правило безопасности. К ней обращаются только внутренние сервисы кластера. Если бы мы поставили `NodePort`, БД оказалась бы открыта на IP ноды → потенциальная уязвимость.
+
+### 📜 Что делает встроенный `init.sql`
+
+При первом запуске Postgres автоматически выполняет скрипты из `/docker-entrypoint-initdb.d/`. В образе `src-postgres:latest` там лежит `init.sql`, который создаёт 6 баз:
+- `sessions_db`
+- `hotels_db`
+- `bookings_db`
+- `payments_db`
+- `balances_db`
+- `reports_db`
+
+Каждый микросервис подключается к своей БД (по принципу **database per service**).

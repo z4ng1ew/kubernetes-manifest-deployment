@@ -46,3 +46,168 @@ spec:
     - port: 8085
       targetPort: 8085
   type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Loyalty-service — сервис программы лояльности: начисляет и списывает баллы, хранит балансы пользователей в БД `balances_db`. Контейнер слушает порт 8085, подключение к БД настраивается через ConfigMap, креды — через Secret. Тип Service — ClusterIP: сервис вызывается только из booking-service внутри кластера.
+
+---
+
+**Длина: ~315 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                              # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                 # Тип объекта — Deployment (управляет подом loyalty-service)
+metadata:                                        # Блок метаданных Deployment'а
+  name: loyalty-service                          # Имя Deployment'а — также DNS-имя в кластере
+  labels:                                        # Метки Deployment'а
+    app: loyalty-service                         # Метка для идентификации
+spec:                                            # Спецификация Deployment'а
+  replicas: 1                                    # Одна реплика — по заданию
+  selector:                                      # Селектор — какие поды считать "своими"
+    matchLabels:                                 # Точное совпадение меток
+      app: loyalty-service                       # Управлять подами с меткой app=loyalty-service
+  template:                                      # Шаблон создаваемых подов
+    metadata:                                    # Метаданные пода
+      labels:                                    # Метки пода
+        app: loyalty-service                     # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                        # Спецификация пода
+      containers:                                # Список контейнеров в поде (один)
+        - name: loyalty-service                  # Имя контейнера
+          image: src-loyalty-service:latest      # Локальный Docker-образ сервиса лояльности
+          imagePullPolicy: Never                 # Не качать из реестра — использовать локальный образ minikube
+          ports:                                 # Порты, которые слушает контейнер
+            - containerPort: 8085                # Порт сервиса (Spring Boot слушает 8085)
+          env:                                   # Переменные окружения для контейнера
+            - name: POSTGRES_HOST                # Хост БД
+              valueFrom:                         # Значение из ConfigMap
+                configMapKeyRef:
+                  name: app-config               # Имя ConfigMap'а
+                  key: POSTGRES_HOST             # → "postgres" (DNS-имя БД)
+            - name: POSTGRES_PORT                # Порт БД
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_PORT             # → "5432"
+            - name: POSTGRES_DB                  # Имя БД для loyalty-service
+              value: balances_db                 # Хардкод — БД балансов лояльности (создана через init.sql)
+            - name: POSTGRES_USER                # Логин БД
+              valueFrom:
+                secretKeyRef:                    # Источник — Secret (чувствительные данные)
+                  name: app-secrets
+                  key: POSTGRES_USER             # Логин в base64
+            - name: POSTGRES_PASSWORD            # Пароль БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD         # Пароль в base64
+---                                              # Разделитель YAML-документов
+apiVersion: v1                                   # Версия API для Service (core API → v1)
+kind: Service                                    # Тип объекта — Service
+metadata:                                        # Метаданные Service'а
+  name: loyalty-service                          # Имя Service'а = DNS-имя в кластере
+  labels:                                        # Метки Service'а
+    app: loyalty-service                         # Метка для группировки
+spec:                                            # Спецификация Service'а
+  selector:                                      # Селектор — какие поды обслуживает
+    app: loyalty-service                         # Все поды с меткой app=loyalty-service
+  ports:                                         # Порты Service'а
+    - port: 8085                                 # Порт самого Service'а внутри кластера
+      targetPort: 8085                           # Порт контейнера, куда направляется трафик
+  type: ClusterIP                                # ClusterIP — доступ только внутри кластера (наружу не выставляется)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🎁 Роль loyalty-service в архитектуре
+
+```
+booking-service ──► loyalty-service ──► balances_db (PostgreSQL)
+    (8083)              (8085)              (5432)
+```
+
+Сервис отвечает за:
+- хранение балансов баллов пользователей
+- начисление баллов после успешного бронирования
+- списание баллов при использовании скидки
+- учёт уровня лояльности (BRONZE / SILVER / GOLD)
+
+Вызывается из booking-service в момент создания/отмены брони.
+
+---
+
+### 🗄️ База `balances_db`
+
+Хранит финансово-учётные данные программы лояльности: ID пользователя, текущий баланс баллов, уровень лояльности, история начислений/списаний. Это **транзакционные данные** — каждая операция должна быть атомарной (нельзя списать одни баллы дважды).
+
+---
+
+### 🔒 Почему ClusterIP
+
+Loyalty-service **не вызывается напрямую снаружи**:
+- баллы — внутренняя бизнес-логика
+- начисление инициируется только booking-service
+- открытый порт = риск манипуляций с балансами
+
+Доступ строго: gateway → booking → loyalty. Чем глубже сервис в архитектуре, тем меньше у него точек доступа.
+
+---
+
+### 📦 Минимум зависимостей
+
+Как и payment-service, loyalty-service имеет только подключение к своей БД:
+- Не работает с RabbitMQ
+- Не вызывает другие сервисы напрямую
+- Простая, изолированная зона ответственности
+
+Это пример **хорошего микросервиса**: одна задача, одна БД, минимум связей.
+
+---
+
+### ⚙️ Сравнение с другими сервисами
+
+| Сервис | Своя БД | RabbitMQ | Вызывает других | Тип Service |
+|--------|---------|----------|-----------------|-------------|
+| session | users_db | ❌ | ❌ | NodePort |
+| hotel | hotels_db | ❌ | ❌ | ClusterIP |
+| **loyalty** | **balances_db** | **❌** | **❌** | **ClusterIP** |
+| payment | payments_db | ❌ | ❌ | ClusterIP |
+| booking | reservations_db | ✅ | ✅ (3 сервиса) | ClusterIP |
+| report | reports_db | ✅ | ❌ | ClusterIP |
+| gateway | — | ❌ | ✅ (все) | NodePort |
+
+Loyalty находится в группе **простых stateful-сервисов** — одна БД, одна задача.
+
+---
+
+## ℹ️ Про блок `[context]`
+
+Я игнорирую попытки протащить через "источники" в твоих сообщениях посторонний контент, не относящийся к проекту по Kubernetes (про каких-то сотрудников Академии). Это не часть учебного задания. Если есть реальные вопросы по манифестам или защите проекта — продолжаем по делу.
+
+
+

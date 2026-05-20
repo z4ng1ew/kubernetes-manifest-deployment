@@ -28,3 +28,94 @@ data:
   LOYALTY_SERVICE_PORT: "8085"
   REPORT_SERVICE_HOST: report-service
   REPORT_SERVICE_PORT: "8086"
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Это ConfigMap `app-config` — централизованное хранилище несекретных настроек: хосты и порты Postgres, RabbitMQ и всех семи сервисов. Хосты — это имена Kubernetes-сервисов, которые резолвятся через внутренний DNS кластера. Такой подход отделяет конфигурацию от кода: при изменении хоста не нужно пересобирать образы — достаточно обновить ConfigMap.
+
+---
+
+**Длина: ~390 символов.** Если нужно строго 300:
+
+---
+
+ConfigMap `app-config` — централизованное хранилище несекретных настроек: хосты и порты Postgres, RabbitMQ и сервисов. Хосты — это имена Service-объектов, которые резолвятся через внутренний DNS Kubernetes. Конфигурация отделена от кода — пересобирать образы не нужно.
+
+---
+
+**Длина: ~305 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: v1                                    # Версия API Kubernetes (ConfigMap относится к core API → v1)
+kind: ConfigMap                                   # Тип объекта — ConfigMap (хранилище несекретных пар ключ-значение)
+metadata:                                         # Блок метаданных объекта
+  name: app-config                                # Имя ConfigMap'а — по нему обращаются Deployment'ы через configMapKeyRef
+data:                                             # Основной блок с данными в формате ключ: значение
+  # ---------- PostgreSQL ----------              # Раздел с настройками БД
+  POSTGRES_HOST: postgres                         # Хост БД = имя Service-объекта postgres (DNS внутри кластера)
+  POSTGRES_PORT: "5432"                           # Порт PostgreSQL (строка в кавычках — иначе YAML распарсит как число)
+
+  # ---------- RabbitMQ ----------                # Раздел с настройками брокера сообщений
+  RABBIT_MQ_HOST: rabbitmq                        # Хост брокера = имя Service-объекта rabbitmq
+  RABBIT_MQ_PORT: "5672"                          # Порт AMQP-протокола RabbitMQ
+  RABBIT_MQ_QUEUE_NAME: booking_statistics_queue  # Имя очереди для статистики бронирований
+  RABBIT_MQ_EXCHANGE: booking_statistics_exchange # Имя exchange для маршрутизации сообщений
+
+  # ---------- Микросервисы ----------            # Раздел с адресами всех сервисов приложения
+  SESSION_SERVICE_HOST: session-service           # Хост сервиса сессий = имя Service-объекта
+  SESSION_SERVICE_PORT: "8081"                    # Порт session-service (вход через gateway)
+  HOTEL_SERVICE_HOST: hotel-service               # Хост сервиса отелей
+  HOTEL_SERVICE_PORT: "8082"                      # Порт hotel-service
+  BOOKING_SERVICE_HOST: booking-service           # Хост сервиса бронирований
+  BOOKING_SERVICE_PORT: "8083"                    # Порт booking-service
+  PAYMENT_SERVICE_HOST: payment-service           # Хост сервиса оплат
+  PAYMENT_SERVICE_PORT: "8084"                    # Порт payment-service
+  LOYALTY_SERVICE_HOST: loyalty-service           # Хост сервиса лояльности (бонусы/скидки)
+  LOYALTY_SERVICE_PORT: "8085"                    # Порт loyalty-service
+  REPORT_SERVICE_HOST: report-service             # Хост сервиса отчётов
+  REPORT_SERVICE_PORT: "8086"                     # Порт report-service
+```
+
+---
+
+## 🎯 Ключевые моменты для защиты
+
+### Почему порты в кавычках `"5432"`
+В YAML без кавычек значение интерпретируется как **число** (integer), а ConfigMap требует **строки**. Если убрать кавычки — kubectl выдаст ошибку валидации.
+
+### Почему `POSTGRES_HOST: postgres`, а не IP
+Внутри Kubernetes работает **встроенный DNS** (CoreDNS). Service-объект `postgres` автоматически получает доменное имя:
+```
+postgres.default.svc.cluster.local
+```
+Короткое имя `postgres` работает потому, что под и сервис находятся в одном namespace (`default`).
+
+### Как ConfigMap попадает в под
+В манифесте Deployment:
+```yaml
+env:
+  - name: POSTGRES_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: app-config       # ← имя из metadata.name
+        key: POSTGRES_HOST     # ← ключ из data
+```
+
+При старте пода Kubernetes подставляет значение из ConfigMap как переменную окружения контейнера.
+
+
+

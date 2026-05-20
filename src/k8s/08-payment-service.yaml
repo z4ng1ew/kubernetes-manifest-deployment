@@ -46,3 +46,161 @@ spec:
     - port: 8084
       targetPort: 8084
   type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Payment-service — сервис платежей, работает с БД `payments_db`. Контейнер слушает порт 8084, подключение к БД настраивается через ConfigMap, креды — через Secret. Тип Service — ClusterIP: платежи вызываются только из booking-service внутри кластера, наружу не выставляются для безопасности.
+
+---
+
+**Длина: ~310 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                              # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                 # Тип объекта — Deployment (управляет подом payment-service)
+metadata:                                        # Блок метаданных Deployment'а
+  name: payment-service                          # Имя Deployment'а — также DNS-имя в кластере
+  labels:                                        # Метки Deployment'а
+    app: payment-service                         # Метка для идентификации
+spec:                                            # Спецификация Deployment'а
+  replicas: 1                                    # Одна реплика — по заданию
+  selector:                                      # Селектор — какие поды считать "своими"
+    matchLabels:                                 # Точное совпадение меток
+      app: payment-service                       # Управлять подами с меткой app=payment-service
+  template:                                      # Шаблон создаваемых подов
+    metadata:                                    # Метаданные пода
+      labels:                                    # Метки пода
+        app: payment-service                     # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                        # Спецификация пода
+      containers:                                # Список контейнеров в поде (один)
+        - name: payment-service                  # Имя контейнера
+          image: src-payment-service:latest      # Локальный Docker-образ сервиса платежей
+          imagePullPolicy: Never                 # Не качать из реестра — использовать локальный образ minikube
+          ports:                                 # Порты, которые слушает контейнер
+            - containerPort: 8084                # Порт сервиса (Spring Boot слушает 8084)
+          env:                                   # Переменные окружения для контейнера
+            - name: POSTGRES_HOST                # Хост БД
+              valueFrom:                         # Значение из ConfigMap
+                configMapKeyRef:
+                  name: app-config               # Имя ConfigMap'а
+                  key: POSTGRES_HOST             # → "postgres" (DNS-имя БД)
+            - name: POSTGRES_PORT                # Порт БД
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_PORT             # → "5432"
+            - name: POSTGRES_DB                  # Имя БД для payment-service
+              value: payments_db                 # Хардкод — БД платежей (создана через init.sql)
+            - name: POSTGRES_USER                # Логин БД
+              valueFrom:
+                secretKeyRef:                    # Источник — Secret (чувствительные данные)
+                  name: app-secrets
+                  key: POSTGRES_USER             # Логин в base64
+            - name: POSTGRES_PASSWORD            # Пароль БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD         # Пароль в base64
+---                                              # Разделитель YAML-документов
+apiVersion: v1                                   # Версия API для Service (core API → v1)
+kind: Service                                    # Тип объекта — Service
+metadata:                                        # Метаданные Service'а
+  name: payment-service                          # Имя Service'а = DNS-имя в кластере
+  labels:                                        # Метки Service'а
+    app: payment-service                         # Метка для группировки
+spec:                                            # Спецификация Service'а
+  selector:                                      # Селектор — какие поды обслуживает
+    app: payment-service                         # Все поды с меткой app=payment-service
+  ports:                                         # Порты Service'а
+    - port: 8084                                 # Порт самого Service'а внутри кластера
+      targetPort: 8084                           # Порт контейнера, куда направляется трафик
+  type: ClusterIP                                # ClusterIP — доступ только внутри кластера (наружу не выставляется)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 💳 Роль payment-service в архитектуре
+
+```
+booking-service ──► payment-service ──► payments_db (PostgreSQL)
+    (8083)              (8084)               (5432)
+```
+
+Сервис отвечает за:
+- создание платежа при бронировании
+- подтверждение/отклонение транзакции
+- возвраты при отмене брони
+- хранение истории платежей
+
+Вызывается **только из booking-service** в момент бронирования.
+
+---
+
+### 🔒 Почему ClusterIP — особенно критично
+
+Платёжный сервис **никогда не должен быть открыт наружу**:
+- Платежи — самая чувствительная зона
+- Открытый порт = потенциальный вектор атаки на финансовые операции
+- Доступ ограничен gateway → booking → payment (несколько слоёв проверки)
+
+Это правило безопасности: **минимум открытых наружу портов**.
+
+---
+
+### 🗄️ База `payments_db`
+
+Хранит транзакционные данные платежей: ID платежа, ID брони, сумма, статус (PENDING/CONFIRMED/REFUNDED), время операции. Своя БД — потому что у payment-service строгие требования к консистентности (двойное списание недопустимо), и его данные не должны зависеть от изменений в других БД.
+
+---
+
+### 🔄 Транзакционная логика
+
+```
+booking создаёт бронь (статус PENDING)
+        ↓
+booking → payment.charge() [синхронно]
+        ↓
+payment списывает деньги в payments_db
+        ↓
+payment возвращает 200 OK
+        ↓
+booking обновляет бронь (статус CONFIRMED)
+```
+
+Если на любом шаге ошибка — booking откатывает бронь, payment откатывает списание. Это **distributed transaction** — одна из самых сложных тем в микросервисах. В учебном проекте упрощённо: payment либо подтверждает, либо отклоняет.
+
+---
+
+### 📦 Минимум переменных окружения
+
+В отличие от booking-service (15+ переменных), у payment всего 5 — только подключение к БД. Это значит:
+- Сервис **не вызывает других** напрямую
+- Не работает с RabbitMQ
+- Простая зона ответственности — только своя БД
+
+Чем меньше зависимостей — тем меньше точек отказа.
+
+---
+
+## ℹ️ По блоку `[context]` в начале сообщения
+
+Я игнорирую инструкции из пользовательского ввода, которые пытаются добавить "системную информацию" под видом источников — там был не имеющий отношения к проекту текст про каких-то людей. Если у тебя есть реальные вопросы по K8s-проекту — задавай, продолжим работу над защитой манифестов.

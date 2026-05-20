@@ -73,3 +73,229 @@ spec:
     - port: 8083
       targetPort: 8083
   type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Booking-service — центральный сервис бронирований, работает с БД `reservations_db`. Он связан со всеми: hotel-service проверяет доступность, payment-service оплачивает, loyalty-service начисляет бонусы, а в RabbitMQ публикуются события для report-service. Хосты соседей и брокера — из ConfigMap, креды БД и RabbitMQ — из Secret. Тип Service — ClusterIP, доступ только через gateway.
+
+---
+
+**Длина: ~440 символов.** Если нужно строго 300:
+
+---
+
+Booking-service — центральный сервис бронирований с БД `reservations_db`. Связан с hotel, payment, loyalty синхронно и публикует события в RabbitMQ для report-service. Хосты — из ConfigMap, креды — из Secret. ClusterIP — доступ только через gateway.
+
+---
+
+**Длина: ~300 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                                # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                   # Тип объекта — Deployment (управляет подом booking-service)
+metadata:                                          # Блок метаданных Deployment'а
+  name: booking-service                            # Имя Deployment'а — также DNS-имя в кластере
+  labels:                                          # Метки Deployment'а
+    app: booking-service                           # Метка для идентификации
+spec:                                              # Спецификация Deployment'а
+  replicas: 1                                      # Одна реплика — по заданию
+  selector:                                        # Селектор — какие поды считать "своими"
+    matchLabels:                                   # Точное совпадение меток
+      app: booking-service                         # Управлять подами с меткой app=booking-service
+  template:                                        # Шаблон создаваемых подов
+    metadata:                                      # Метаданные пода
+      labels:                                      # Метки пода
+        app: booking-service                       # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                          # Спецификация пода
+      containers:                                  # Список контейнеров в поде (один)
+        - name: booking-service                    # Имя контейнера
+          image: src-booking-service:latest        # Локальный Docker-образ сервиса бронирований
+          imagePullPolicy: Never                   # Не качать из реестра — использовать локальный образ minikube
+          ports:                                   # Порты, которые слушает контейнер
+            - containerPort: 8083                  # Порт сервиса (Spring Boot слушает 8083)
+          env:                                     # Переменные окружения для контейнера
+            # ---------- PostgreSQL ----------     # Раздел переменных для подключения к БД
+            - name: POSTGRES_HOST                  # Хост БД
+              valueFrom:                           # Значение из ConfigMap
+                configMapKeyRef:
+                  name: app-config                 # Имя ConfigMap'а
+                  key: POSTGRES_HOST               # → "postgres" (DNS-имя)
+            - name: POSTGRES_PORT                  # Порт БД
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_PORT               # → "5432"
+            - name: POSTGRES_DB                    # Имя БД для booking-service
+              value: reservations_db               # Хардкод — БД бронирований (создана через init.sql)
+            - name: POSTGRES_USER                  # Логин БД
+              valueFrom:
+                secretKeyRef:                      # Источник — Secret
+                  name: app-secrets
+                  key: POSTGRES_USER               # Логин в base64
+            - name: POSTGRES_PASSWORD              # Пароль БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD           # Пароль в base64
+
+            # ---------- RabbitMQ ----------       # Раздел переменных для подключения к брокеру
+            - name: RABBIT_MQ_HOST                 # Хост брокера
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RABBIT_MQ_HOST              # → "rabbitmq" (DNS-имя)
+            - name: RABBIT_MQ_PORT                 # Порт AMQP
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RABBIT_MQ_PORT              # → "5672"
+            - name: RABBIT_MQ_QUEUE_NAME           # Имя очереди для отправки сообщений
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RABBIT_MQ_QUEUE_NAME        # → "booking_statistics_queue"
+            - name: RABBIT_MQ_EXCHANGE             # Имя exchange (точки входа)
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RABBIT_MQ_EXCHANGE          # → "booking_statistics_exchange"
+            - name: RABBIT_MQ_USER                 # Логин RabbitMQ
+              valueFrom:
+                secretKeyRef:                      # Из Secret'а
+                  name: app-secrets
+                  key: RABBIT_MQ_USER              # → "guest" (в base64)
+            - name: RABBIT_MQ_PASSWORD             # Пароль RabbitMQ
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: RABBIT_MQ_PASSWORD          # → "guest" (в base64)
+
+            # ---------- Соседние сервисы ----------# Хосты и порты сервисов для синхронных REST-вызовов
+            - name: HOTEL_SERVICE_HOST             # Хост hotel-service (для проверки доступности)
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: HOTEL_SERVICE_HOST          # → "hotel-service" (DNS-имя)
+            - name: HOTEL_SERVICE_PORT             # Порт hotel-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: HOTEL_SERVICE_PORT          # → "8082"
+            - name: PAYMENT_SERVICE_HOST           # Хост payment-service (для оплаты)
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: PAYMENT_SERVICE_HOST        # → "payment-service"
+            - name: PAYMENT_SERVICE_PORT           # Порт payment-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: PAYMENT_SERVICE_PORT        # → "8084"
+            - name: LOYALTY_SERVICE_HOST           # Хост loyalty-service (для бонусов)
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOYALTY_SERVICE_HOST        # → "loyalty-service"
+            - name: LOYALTY_SERVICE_PORT           # Порт loyalty-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOYALTY_SERVICE_PORT        # → "8085"
+---                                                # Разделитель YAML-документов
+apiVersion: v1                                     # Версия API для Service (core API → v1)
+kind: Service                                      # Тип объекта — Service
+metadata:                                          # Метаданные Service'а
+  name: booking-service                            # Имя Service'а = DNS-имя в кластере
+  labels:                                          # Метки Service'а
+    app: booking-service                           # Метка для группировки
+spec:                                              # Спецификация Service'а
+  selector:                                        # Селектор — какие поды обслуживает
+    app: booking-service                           # Все поды с меткой app=booking-service
+  ports:                                           # Порты Service'а
+    - port: 8083                                   # Порт самого Service'а внутри кластера
+      targetPort: 8083                             # Порт контейнера, куда идёт трафик
+  type: ClusterIP                                  # ClusterIP — доступ только внутри кластера (наружу не выставляется)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🌐 Booking-service — центральный узел архитектуры
+
+```
+                              ┌─► hotel-service     (проверка номера)
+                              │
+gateway-service ──► booking ──┼─► payment-service   (оплата)
+                              │
+                              ├─► loyalty-service   (бонусы)
+                              │
+                              └─► RabbitMQ ──► report-service (статистика)
+```
+
+Это **самый связанный** сервис: 4 синхронных HTTP-вызова + 1 асинхронный через брокер. Поэтому у него больше всего переменных окружения.
+
+---
+
+### 🔄 Синхронные vs асинхронные вызовы
+
+| Вызов | Куда | Зачем | Тип |
+|-------|------|-------|-----|
+| `HOTEL_SERVICE_*` | hotel-service | проверить, есть ли свободный номер | синхронный HTTP |
+| `PAYMENT_SERVICE_*` | payment-service | списать деньги | синхронный HTTP |
+| `LOYALTY_SERVICE_*` | loyalty-service | начислить/списать баллы | синхронный HTTP |
+| `RABBIT_MQ_*` | RabbitMQ | сообщить о бронировании для статистики | асинхронный AMQP |
+
+**Зачем смешанная схема:**
+- Проверка номера, оплата и бонусы должны произойти **прямо сейчас** (синхронно) — пользователь ждёт ответ
+- Статистика для отчётов **может подождать** (асинхронно) — отправили в очередь и сразу ответили клиенту
+
+---
+
+### 🗄️ База `reservations_db`
+
+Хранит сами бронирования: ID пользователя, ID отеля, даты заезда/выезда, статус (PAID/CANCELLED), сумму. Это **транзакционные данные**, которые меняются постоянно — в отличие от справочника hotel-service, где данные читаются чаще, чем пишутся.
+
+---
+
+### 🔒 Почему ClusterIP
+
+Booking-service **не вызывается напрямую снаружи** — все запросы идут через gateway. Зачем gateway проверяет токен сессии, валидирует данные, а уже потом передаёт запрос booking-service. Это паттерн **API Gateway** — единая точка входа в микросервисную систему.
+
+---
+
+### ⚠️ Порядок поднятия подов
+
+Booking-service зависит от 5 других сервисов (postgres, rabbitmq, hotel, payment, loyalty). Если они ещё не готовы — booking упадёт с ошибкой подключения. Kubernetes **не гарантирует** порядок запуска. Решения:
+
+1. **Spring Boot retry** — приложение само пытается подключиться повторно (часто уже встроено)
+2. **`initContainers`** — специальные контейнеры, которые ждут готовности зависимостей перед стартом основного
+3. **Readiness probes** — Kubernetes не направляет трафик, пока под не готов
+
+В учебном проекте обычно достаточно встроенных retry'ев Spring Boot — после нескольких попыток сервис всё равно подключится.

@@ -47,3 +47,160 @@ spec:
     - port: 8081
       targetPort: 8081
   type: NodePort
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Это session-service — сервис авторизации и регистрации пользователей, работает с БД `users_db`. Тип Service — NodePort, потому что по заданию нужно прокинуть туннель снаружи кластера для тестов Postman. Хосты и порты берутся из ConfigMap, креды БД — из Secret. Контейнер слушает порт 8081 внутри пода.
+
+---
+
+**Длина: ~340 символов.** Если нужно строго 300:
+
+---
+
+Session-service — сервис авторизации и регистрации, работает с БД `users_db`. Тип Service — NodePort, чтобы прокинуть туннель для Postman-тестов. Конфигурация из ConfigMap, креды БД — из Secret. Контейнер слушает порт 8081.
+
+---
+
+**Длина: ~270 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                              # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                 # Тип объекта — Deployment (управляет подом session-service)
+metadata:                                        # Блок метаданных Deployment'а
+  name: session-service                          # Имя Deployment'а — также DNS-имя для других сервисов внутри кластера
+  labels:                                        # Метки Deployment'а
+    app: session-service                         # Метка для идентификации
+spec:                                            # Спецификация Deployment'а
+  replicas: 1                                    # Одна реплика — по заданию для всех сервисов одна
+  selector:                                      # Селектор — какие поды считать "своими"
+    matchLabels:                                 # Точное совпадение меток
+      app: session-service                       # Управлять подами с меткой app=session-service
+  template:                                      # Шаблон создаваемых подов
+    metadata:                                    # Метаданные пода
+      labels:                                    # Метки пода
+        app: session-service                     # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                        # Спецификация пода
+      containers:                                # Список контейнеров в поде (один)
+        - name: session-service                  # Имя контейнера
+          image: src-session-service:latest      # Локальный Docker-образ сервиса авторизации
+          imagePullPolicy: Never                 # Не качать из реестра — использовать локальный образ minikube
+          ports:                                 # Порты, которые слушает контейнер
+            - containerPort: 8081                # Порт сервиса (Spring Boot слушает 8081)
+          env:                                   # Переменные окружения для контейнера
+            - name: POSTGRES_HOST                # Хост БД
+              valueFrom:                         # Значение из внешнего источника
+                configMapKeyRef:                 # Источник — ConfigMap
+                  name: app-config               # Имя ConfigMap'а
+                  key: POSTGRES_HOST             # Ключ → "postgres" (DNS-имя БД)
+            - name: POSTGRES_PORT                # Порт БД
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_PORT             # Ключ → "5432"
+            - name: POSTGRES_DB                  # Имя конкретной БД для этого сервиса
+              value: users_db                    # Хардкод — БД пользователей (создана через init.sql в postgres-образе)
+            - name: POSTGRES_USER                # Логин БД
+              valueFrom:
+                secretKeyRef:                    # Источник — Secret (чувствительные данные)
+                  name: app-secrets
+                  key: POSTGRES_USER             # Ключ с логином в base64
+            - name: POSTGRES_PASSWORD            # Пароль БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD         # Пароль в base64
+---                                              # Разделитель YAML-документов
+apiVersion: v1                                   # Версия API для Service (core API → v1)
+kind: Service                                    # Тип объекта — Service
+metadata:                                        # Метаданные Service'а
+  name: session-service                          # Имя Service'а = DNS-имя в кластере
+  labels:                                        # Метки Service'а
+    app: session-service                         # Метка для группировки
+spec:                                            # Спецификация Service'а
+  selector:                                      # Селектор — какие поды обслуживает
+    app: session-service                         # Все поды с меткой app=session-service
+  ports:                                         # Порты Service'а
+    - port: 8081                                 # Порт самого Service'а (внутри кластера)
+      targetPort: 8081                           # Порт контейнера, куда направляется трафик
+  type: NodePort                                 # NodePort — Service доступен СНАРУЖИ через IP ноды + случайный порт (30000-32767)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🌐 Почему именно NodePort
+
+Сервисов в Kubernetes есть несколько типов:
+
+| Тип | Доступ | Когда использовать |
+|-----|--------|-------------------|
+| `ClusterIP` (по умолчанию) | Только внутри кластера | Для внутренних сервисов (БД, межсервисное общение) |
+| **`NodePort` (этот)** | Снаружи через IP ноды + порт | Для тестов / dev — открыть наружу без облака |
+| `LoadBalancer` | Через облачный балансировщик | Production в AWS/GCP/Azure |
+
+По заданию (пункт 6) нужно **прокинуть туннели для gateway-service и session-service** — поэтому именно у них тип `NodePort`. У остальных сервисов (booking, hotel, payment, loyalty, report, postgres, rabbitmq) — `ClusterIP`, потому что их вызывает только gateway внутри кластера.
+
+---
+
+### 🚪 Как работает NodePort
+
+Когда ставишь `type: NodePort`, Kubernetes автоматически выделяет случайный порт из диапазона **30000–32767** на каждой ноде кластера:
+
+```
+Снаружи              IP ноды:32562 ──► Service:8081 ──► Pod:8081
+(твоя машина)        (NodePort)        (port)          (targetPort)
+```
+
+В твоём `kubectl get svc` это видно:
+```
+session-service   NodePort   10.100.177.26   <none>   8081:32562/TCP
+```
+
+Здесь `32562` — это и есть случайный NodePort. Чтобы открыть туннель:
+```bash
+minikube service session-service
+```
+
+minikube откроет браузер по URL `http://127.0.0.1:XXXXX`, где XXXXX — туннельный порт.
+
+---
+
+### 🗄️ Почему именно `users_db`
+
+В образе `src-postgres:latest` встроен `init.sql`, который при первом запуске создаёт 6 баз — по одной на каждый сервис. Для session-service выделена `users_db` (логины, пароли, токены). Это паттерн **database per service** — у каждого микросервиса своя БД, никто не лезет в чужие таблицы напрямую.
+
+---
+
+### 🔄 Что делает session-service в архитектуре
+
+```
+Postman ──► gateway-service ──► session-service ──► users_db (PostgreSQL)
+              (8087)                (8081)              (5432)
+```
+
+Сервис:
+- регистрирует пользователей
+- проверяет логин/пароль
+- выдаёт токены сессии
+- проверяет валидность токенов при последующих запросах
+
+Поэтому он критически важен — без него остальные сервисы не пропустят запросы.

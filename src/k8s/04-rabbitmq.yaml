@@ -51,3 +51,169 @@ spec:
       port: 15672
       targetPort: 15672
   type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Это RabbitMQ — брокер сообщений между booking-service и report-service: бронирование отправляет событие в очередь, отчёты его обрабатывают асинхронно. Образ с `management` — есть веб-интерфейс на порту 15672, AMQP-протокол на 5672. Логин и пароль из Secret, ClusterIP-сервис делает брокер доступным внутри кластера по DNS-имени `rabbitmq`.
+
+---
+
+**Длина: ~395 символов.** Если нужно строго 300:
+
+---
+
+RabbitMQ — брокер сообщений между booking-service и report-service для асинхронной обработки. Образ с management — веб-UI на 15672, AMQP на 5672. Логин/пароль из Secret. ClusterIP-сервис делает брокер доступным внутри кластера по DNS-имени `rabbitmq`.
+
+---
+
+**Длина: ~310 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                                      # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                         # Тип объекта — Deployment (управляет подом брокера)
+metadata:                                                # Блок метаданных Deployment'а
+  name: rabbitmq                                         # Имя Deployment'а — также DNS-имя для подключения
+  labels:                                                # Метки Deployment'а
+    app: rabbitmq                                        # Метка для идентификации
+spec:                                                    # Спецификация Deployment'а
+  replicas: 1                                            # Одна реплика (для кластера RabbitMQ нужна отдельная настройка с StatefulSet)
+  selector:                                              # Селектор — какие поды считать "своими"
+    matchLabels:                                         # Точное совпадение меток
+      app: rabbitmq                                      # Управлять подами с меткой app=rabbitmq
+  template:                                              # Шаблон создаваемых подов
+    metadata:                                            # Метаданные пода
+      labels:                                            # Метки пода
+        app: rabbitmq                                    # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                                # Спецификация пода
+      containers:                                        # Список контейнеров в поде
+        - name: rabbitmq                                 # Имя контейнера
+          image: rabbitmq:3.12-management-alpine         # Официальный образ RabbitMQ 3.12 + management-плагин (веб-UI), на Alpine (легче)
+          imagePullPolicy: Never                         # Не качать из реестра — использовать локальный образ minikube
+          ports:                                         # Порты, которые открывает контейнер
+            - containerPort: 5672                        # AMQP-порт — основной протокол для отправки/получения сообщений
+            - containerPort: 15672                       # HTTP-порт для веб-интерфейса управления (management UI)
+          env:                                           # Переменные окружения для контейнера
+            - name: RABBITMQ_DEFAULT_USER                # Стандартная переменная RabbitMQ — логин администратора
+              valueFrom:                                 # Значение из внешнего источника
+                secretKeyRef:                            # Источник — Secret
+                  name: app-secrets                      # Имя Secret'а
+                  key: RABBIT_MQ_USER                    # Ключ с логином (в base64 → "guest")
+            - name: RABBITMQ_DEFAULT_PASS                # Стандартная переменная RabbitMQ — пароль администратора
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets                      # Из того же Secret'а
+                  key: RABBIT_MQ_PASSWORD                # Пароль в base64 → "guest"
+---                                                      # Разделитель YAML-документов
+apiVersion: v1                                           # Версия API для Service (core API → v1)
+kind: Service                                            # Тип объекта — Service
+metadata:                                                # Метаданные Service'а
+  name: rabbitmq                                         # Имя Service'а = DNS-имя для подключения из других подов
+  labels:                                                # Метки Service'а
+    app: rabbitmq                                        # Метка для группировки
+spec:                                                    # Спецификация Service'а
+  selector:                                              # Селектор — какие поды обслуживает
+    app: rabbitmq                                        # Все поды с меткой app=rabbitmq
+  ports:                                                 # Список портов (у RabbitMQ их два — поэтому используем именованные)
+    - name: amqp                                         # Имя порта — для AMQP-протокола (сообщения)
+      port: 5672                                         # Порт Service'а
+      targetPort: 5672                                   # Порт контейнера, куда перенаправляется трафик
+    - name: management                                   # Имя порта — для веб-UI
+      port: 15672                                        # Порт Service'а для management-интерфейса
+      targetPort: 15672                                  # Порт контейнера для веб-UI
+  type: ClusterIP                                        # ClusterIP — доступ только внутри кластера (брокер не открыт наружу)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🐰 Зачем нужен RabbitMQ в проекте
+
+В микросервисной архитектуре есть два паттерна общения:
+- **Синхронный (HTTP/REST)** — сервис ждёт ответа → блокировка, тесная связанность
+- **Асинхронный (через брокер)** — сервис отправил сообщение и пошёл дальше → независимость, отказоустойчивость
+
+В твоём приложении:
+```
+booking-service ──[publish event]──► RabbitMQ ──[consume]──► report-service
+```
+Бронирование не ждёт, пока сервис отчётов обработает данные — даже если report-service упал, события накопятся в очереди и обработаются позже.
+
+---
+
+### 🔌 Зачем нужны ДВА порта (5672 и 15672)
+
+| Порт | Протокол | Назначение |
+|------|----------|------------|
+| **5672** | AMQP (бинарный) | По нему сервисы шлют/получают сообщения |
+| **15672** | HTTP | Веб-интерфейс администратора (графики, очереди, пользователи) |
+
+Когда портов несколько — в Service ОБЯЗАТЕЛЬНО нужно указывать `name` для каждого, иначе Kubernetes не примет манифест.
+
+---
+
+### 🎛️ Почему образ с `management`
+
+| Образ | Состав |
+|-------|--------|
+| `rabbitmq:3.12-alpine` | Только брокер (без UI) |
+| `rabbitmq:3.12-management-alpine` (этот) | Брокер + веб-интерфейс на 15672 |
+
+Веб-UI полезен для отладки: можно зайти в браузер, увидеть очереди, exchanges, очередь сообщений в реальном времени. Чтобы попасть туда из своей машины, нужен туннель:
+```bash
+kubectl port-forward service/rabbitmq 15672:15672
+# Открыть http://localhost:15672 (логин/пароль: guest/guest)
+```
+
+---
+
+### 📨 Очередь и Exchange (из ConfigMap)
+
+В ConfigMap у тебя были:
+```yaml
+RABBIT_MQ_QUEUE_NAME: booking_statistics_queue
+RABBIT_MQ_EXCHANGE: booking_statistics_exchange
+```
+
+- **Exchange** — точка входа: куда отправляются сообщения от booking-service
+- **Queue** — точка выхода: откуда читает report-service
+- Между ними — **binding** (правило маршрутизации)
+
+```
+booking-service ──► [exchange] ──► [queue] ──► report-service
+```
+
+---
+
+### 💾 Stateful или нет?
+
+RabbitMQ хранит сообщения и состояние очередей **на диске** (если очереди durable). В этой конфигурации **volume не подключён** — при пересоздании пода все очереди и сообщения теряются. Для production:
+- Подключить `PersistentVolumeClaim` к `/var/lib/rabbitmq`
+- Использовать `StatefulSet` вместо `Deployment`
+- Настроить кластер из нескольких нод RabbitMQ
+
+Для учебного проекта одной реплики и in-memory очередей достаточно.
+
+---
+
+### 🔐 Стандартные креды `guest/guest`
+
+В образе RabbitMQ по умолчанию работают `guest/guest`, но **только для localhost-подключений**. Если бы мы оставили дефолтные креды, наши сервисы (другие поды) не смогли бы подключиться. Поэтому через `RABBITMQ_DEFAULT_USER` и `RABBITMQ_DEFAULT_PASS` мы переопределяем юзера, разрешая ему подключаться отовсюду внутри кластера.

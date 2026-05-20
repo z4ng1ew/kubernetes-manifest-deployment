@@ -46,3 +46,171 @@ spec:
     - port: 8082
       targetPort: 8082
   type: ClusterIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+
+---
+
+Hotel-service — справочник отелей, работает с БД `hotels_db`. Контейнер слушает порт 8082, конфигурация подключения к БД берётся из ConfigMap, креды — из Secret. Тип Service — ClusterIP, потому что сервис вызывается только изнутри кластера через gateway-service, наружу его выставлять не нужно.
+
+---
+
+**Длина: ~315 символов.** ✅
+
+---
+
+# YAML с построчными комментариями через `#`
+
+```yaml
+apiVersion: apps/v1                              # Версия API для Deployment'ов (стабильная)
+kind: Deployment                                 # Тип объекта — Deployment (управляет подом hotel-service)
+metadata:                                        # Блок метаданных Deployment'а
+  name: hotel-service                            # Имя Deployment'а — также DNS-имя для подключения других сервисов
+  labels:                                        # Метки Deployment'а
+    app: hotel-service                           # Метка для идентификации
+spec:                                            # Спецификация Deployment'а
+  replicas: 1                                    # Одна реплика — по заданию для всех сервисов одна
+  selector:                                      # Селектор — какие поды считать "своими"
+    matchLabels:                                 # Точное совпадение меток
+      app: hotel-service                         # Управлять подами с меткой app=hotel-service
+  template:                                      # Шаблон создаваемых подов
+    metadata:                                    # Метаданные пода
+      labels:                                    # Метки пода
+        app: hotel-service                       # ОБЯЗАТЕЛЬНО совпадает с selector выше
+    spec:                                        # Спецификация пода
+      containers:                                # Список контейнеров в поде (один)
+        - name: hotel-service                    # Имя контейнера
+          image: src-hotel-service:latest        # Локальный Docker-образ сервиса отелей
+          imagePullPolicy: Never                 # Не качать из реестра — использовать локальный образ minikube
+          ports:                                 # Порты, которые слушает контейнер
+            - containerPort: 8082                # Порт сервиса (Spring Boot слушает 8082)
+          env:                                   # Переменные окружения для контейнера
+            - name: POSTGRES_HOST                # Хост БД
+              valueFrom:                         # Значение из внешнего источника
+                configMapKeyRef:                 # Источник — ConfigMap
+                  name: app-config               # Имя ConfigMap'а
+                  key: POSTGRES_HOST             # Ключ → "postgres" (DNS-имя БД в кластере)
+            - name: POSTGRES_PORT                # Порт БД
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_PORT             # Ключ → "5432"
+            - name: POSTGRES_DB                  # Имя конкретной БД для этого сервиса
+              value: hotels_db                   # Хардкод — БД отелей (создана через init.sql в postgres-образе)
+            - name: POSTGRES_USER                # Логин БД
+              valueFrom:
+                secretKeyRef:                    # Источник — Secret (чувствительные данные)
+                  name: app-secrets
+                  key: POSTGRES_USER             # Ключ с логином в base64
+            - name: POSTGRES_PASSWORD            # Пароль БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD         # Пароль в base64
+---                                              # Разделитель YAML-документов
+apiVersion: v1                                   # Версия API для Service (core API → v1)
+kind: Service                                    # Тип объекта — Service (сетевая абстракция над подами)
+metadata:                                        # Метаданные Service'а
+  name: hotel-service                            # Имя Service'а = DNS-имя в кластере
+  labels:                                        # Метки Service'а
+    app: hotel-service                           # Метка для группировки
+spec:                                            # Спецификация Service'а
+  selector:                                      # Селектор — какие поды обслуживает
+    app: hotel-service                           # Все поды с меткой app=hotel-service
+  ports:                                         # Порты Service'а
+    - port: 8082                                 # Порт самого Service'а (внутри кластера)
+      targetPort: 8082                           # Порт контейнера, куда направляется трафик
+  type: ClusterIP                                # ClusterIP — доступ только внутри кластера (наружу не выставляется)
+```
+
+---
+
+## 🔑 Ключевые моменты для защиты
+
+### 🏨 Роль hotel-service в архитектуре
+
+```
+Postman ──► gateway-service ──► hotel-service ──► hotels_db (PostgreSQL)
+              (8087)                (8082)              (5432)
+```
+
+Сервис отвечает за:
+- хранение списка отелей (название, адрес, рейтинг, количество комнат)
+- получение информации об отеле по ID
+- проверку доступности номеров
+
+Это **справочный** сервис — данные в основном читаются, а не модифицируются.
+
+---
+
+### 🔒 Почему ClusterIP, а не NodePort
+
+Hotel-service **никогда не вызывается напрямую снаружи**. Все запросы идут через gateway:
+
+```
+Снаружи ─► gateway (NodePort 8087) ─► hotel-service (ClusterIP 8082)
+```
+
+Зачем такая схема:
+- **Безопасность** — только одна точка входа (gateway), легче контролировать
+- **Авторизация** — gateway проверяет токены перед пропуском запроса
+- **Логирование** — все запросы проходят через одно место
+- **Меньше открытых портов** наружу
+
+ClusterIP — это поведение по умолчанию для Service: виртуальный IP, доступный только подам внутри кластера.
+
+---
+
+### 🗄️ База `hotels_db`
+
+В образе `src-postgres:latest` встроен `init.sql`, который создаёт отдельные БД для каждого сервиса. Принцип **database per service**:
+
+| Сервис | Своя БД |
+|--------|---------|
+| session-service | `users_db` |
+| **hotel-service** | **`hotels_db`** |
+| booking-service | `bookings_db` |
+| payment-service | `payments_db` |
+| loyalty-service | `balances_db` |
+| report-service | `reports_db` |
+
+Зачем так:
+- Сервисы **независимы** — изменение схемы одной БД не ломает другие
+- При масштабировании можно перенести БД сервиса на отдельный сервер
+- Чёткое разделение ответственности
+
+---
+
+### 🌐 Подключение к БД из этого сервиса
+
+При старте Spring Boot подставляет переменные окружения в JDBC-строку подключения:
+
+```
+jdbc:postgresql://postgres:5432/hotels_db
+                     │       │      │
+                     │       │      └─ POSTGRES_DB
+                     │       └──────── POSTGRES_PORT (из ConfigMap)
+                     └──────────────── POSTGRES_HOST (из ConfigMap)
+
+Логин/пароль:    postgres / postgres
+                     │          │
+                     │          └─ POSTGRES_PASSWORD (из Secret)
+                     └──────────── POSTGRES_USER (из Secret)
+```
+
+DNS-имя `postgres` резолвится в ClusterIP postgres-сервиса через CoreDNS, встроенный в Kubernetes.

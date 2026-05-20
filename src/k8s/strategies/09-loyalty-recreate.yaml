@@ -48,3 +48,97 @@ spec:
     - port: 8085
       targetPort: 8085
   type: ClusterIP
+
+
+
+
+
+
+
+apiVersion: apps/v1                                    # Версия API Kubernetes для Deployment'ов (стабильная)
+kind: Deployment                                       # Тип объекта — Deployment (управляет подами и их обновлением)
+metadata:                                              # Блок метаданных самого Deployment'а
+  name: loyalty-service                                # Имя Deployment'а в кластере (по нему обращаемся через kubectl)
+  labels:                                              # Метки Deployment'а (для группировки/поиска)
+    app: loyalty-service                               # Метка app=loyalty-service для идентификации
+spec:                                                  # Спецификация Deployment'а — описание желаемого состояния
+  strategy:                                            # Стратегия обновления подов при изменении манифеста
+    type: Recreate                                     # RECREATE — сначала удалить все старые поды, потом создать новые (есть downtime)
+  replicas: 1                                          # Количество подов (реплик), которые должны работать одновременно
+  selector:                                            # Селектор — по каким меткам Deployment "узнаёт" свои поды
+    matchLabels:                                       # Точное совпадение меток
+      app: loyalty-service                             # Управлять подами с меткой app=loyalty-service
+  template:                                            # ШАБЛОН пода — по нему создаются все поды этого Deployment'а
+    metadata:                                          # Метаданные подов, которые будут создаваться
+      labels:                                          # Метки, которые получат все создаваемые поды
+        app: loyalty-service                           # ВАЖНО: должна совпадать с selector.matchLabels выше
+    spec:                                              # Спецификация пода — что внутри него
+      containers:                                      # Список контейнеров в поде (у нас один)
+        - name: loyalty-service                        # Имя контейнера внутри пода
+          image: src-loyalty-service:latest            # Docker-образ, из которого создаётся контейнер
+          imagePullPolicy: Never                       # Не качать образ из реестра — использовать только локальный (он уже в minikube)
+          ports:                                       # Порты, которые слушает контейнер
+            - containerPort: 8085                      # Контейнер слушает порт 8085 внутри пода
+          env:                                         # Переменные окружения для контейнера
+            - name: POSTGRES_HOST                      # Имя переменной окружения
+              valueFrom:                               # Значение берётся из внешнего источника (не хардкод)
+                configMapKeyRef:                       # Источник — ConfigMap
+                  name: app-config                     # Имя ConfigMap'а
+                  key: POSTGRES_HOST                   # Ключ внутри ConfigMap'а
+            - name: POSTGRES_PORT                      # Переменная окружения POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config                     # Из того же ConfigMap'а
+                  key: POSTGRES_PORT                   # Берём порт БД
+            - name: POSTGRES_DB                        # Имя базы данных
+              value: balances_db                       # Хардкод-значение (не из ConfigMap/Secret) — БД лояльности
+            - name: POSTGRES_USER                      # Пользователь БД
+              valueFrom:
+                secretKeyRef:                          # Источник — Secret (для чувствительных данных)
+                  name: app-secrets                    # Имя Secret'а
+                  key: POSTGRES_USER                   # Ключ с логином (хранится в base64)
+            - name: POSTGRES_PASSWORD                  # Пароль БД
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets                    # Из того же Secret'а
+                  key: POSTGRES_PASSWORD               # Ключ с паролем
+---                                                    # Разделитель YAML-документов (дальше начинается новый объект)
+apiVersion: v1                                         # Версия API для Service (Service относится к "core" API — версия v1)
+kind: Service                                          # Тип объекта — Service (сетевая абстракция над подами)
+metadata:                                              # Метаданные Service'а
+  name: loyalty-service                                # Имя Service'а (по нему обращаются другие сервисы внутри кластера)
+  labels:                                              # Метки самого Service'а
+    app: loyalty-service                               # Для удобной группировки
+spec:                                                  # Спецификация Service'а
+  selector:                                            # Селектор — какие поды обслуживает этот Service
+    app: loyalty-service                               # Все поды с меткой app=loyalty-service
+  ports:                                               # Порты, которые открывает Service
+    - port: 8085                                       # Порт самого Service'а (на нём слушает виртуальный IP сервиса)
+      targetPort: 8085                                 # Порт контейнера в поде, куда перенаправляется трафик
+  type: ClusterIP                                      # Тип Service'а — ClusterIP (доступен только внутри кластера)
+
+
+
+
+
+
+
+Deployment.selector.matchLabels  ──►  должна совпадать с  ──►  Deployment.template.metadata.labels
+                                                                          │
+                                                                          ▼
+                                                            (поды получают эти метки)
+                                                                          │
+                                                                          ▼
+Service.spec.selector  ──►  ищет поды с этими метками  ──►  app: loyalty-service
+
+
+
+
+
+
+
+
+
+# Монолог для защиты (≈300 символов)
+Манифест loyalty-service со стратегией Recreate: при обновлении сначала удаляются все старые поды, а потом создаются новые — есть кратковременный downtime, но это проще и экономит ресурсы. Переменные окружения берутся из ConfigMap и Secret, а ClusterIP-сервис открывает порт 8085 для доступа внутри кластера.
+
