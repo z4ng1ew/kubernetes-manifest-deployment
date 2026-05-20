@@ -1,0 +1,35 @@
+Advanced_kubernetes
+Respect the rules:
+
+The repository contains the student's (or group's) work in the src folder of the develop branch.
+The student can explain their work at any time during the review.
+General rules are observed throughout the review. Advanced_kubernetes:
+The report is in the src folder.
+The report has the .md extension.
+All tasks are highlighted as level 2 headers.
+All screenshots in the report are captioned to describe what is shown.
+All screenshots are cropped to show only the relevant part of the screen.
+ready_manifest
+The report contains a list of commands for applying the ready-made manifest to a prepared environment and for tunneling. The report also contains the command to run the standard minikube dashboard. The application is deployed in Kubernetes and can be accessed via the cluster address.
+
+
+012345
+
+new_manifest writing
+The student wrote several manifests that define the following Kubernetes objects: configuration map (with service and database hosts), secrets (with login, database password, and inter-service authorization keys), Pods, services, deployments. All services have one replica.
+The report contains a list of commands for applying the manifests to the prepared environment and tunneling.
+
+012345
+
+new_manifest Creating objects
+The report contains the results of commands used to check the status of created Kubernetes objects (kubectl get and kubectl describe), as well as the results of viewing the decoded key-value pair.
+The report contains the results of viewing the logs of an arbitrary container using the kubectl command.
+The results of the Postman tests are provided as a screenshot.
+
+012345
+
+new_manifest Deployment
+The report contains screenshots of the standard Kubernetes dashboard. The screenshots contain the following information: the current state of the cluster nodes, a list of running Pods, and other metrics, such as CPU and memory consumption, Pod logs, Pod configurations and secrets.
+The report also contains time measurements of application deployment using two different strategies: Recreate and Rolling. The application is deployed in Kubernetes and can be accessed via the cluster address.
+
+012345
